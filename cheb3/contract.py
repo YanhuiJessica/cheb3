@@ -31,20 +31,23 @@ class Contract:
         else:
             self.instance = self.w3.eth.contract(**kwargs)
 
-    def deploy(self, constructor_args: list[Any], **kwargs) -> None:
-        tx = self.signer.eth_acct.sign_transaction(self.instance.constructor(*constructor_args).build_transaction({
+    def deploy(self, *constructor_args, **kwargs) -> None:
+        tx = self.signer.sign_transaction(self.instance.constructor(*constructor_args).build_transaction({
             'chainId': self.w3.eth.chain_id,
             'nonce': self.w3.eth.get_transaction_count(self.signer.address),
-            'gas': kwargs.get('gas_limit', self.instance.constructor(*constructor_args).estimate_gas()),
+            'gas': kwargs.get(
+                'gas_limit',
+                self.instance.constructor(*constructor_args).estimate_gas({'from': self.signer.address})
+            ),
             'gasPrice': kwargs.get('gas_price', self.w3.eth.gas_price),
             'value': kwargs.get('value', 0)
         })).rawTransaction
-        logger.debug(f'Deploying contract {type(self).__name__} ...')
+        logger.debug(f'Deploying {type(self).__name__} ...')
         tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
         receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash)
         if not receipt.status:
-            raise Exception(f"Failed to deploy contract {type(self).__name__}.")
-        logger.info(f'Deployed contract {type(self).__name__} at {receipt.contractAddress}')
+            raise Exception(f"Failed to deploy {type(self).__name__}.")
+        logger.info(f'Deployed {type(self).__name__} at {receipt.contractAddress}')
         self.address = receipt.contractAddress
         self.instance = self.w3.eth.contract(self.address, abi=self.instance.abi)
         self._init_functions()
@@ -105,7 +108,7 @@ class ContractFunctionWrapper(ContractFunction):
         })).rawTransaction
         tx_hash = self.web3.eth.send_raw_transaction(tx).hex()
         logger.debug(f'Transact to ({self.address}).{self.function_identifier} pending...')
-        logger.info(f'Transaction hash: {tx_hash}')
+        logger.info(f'({self.address}).{self.function_identifier} transaction hash: {tx_hash}')
         receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
         if not receipt.status:
             raise Exception(f"Transact to ({self.address}).{self.function_identifier} errored.")
