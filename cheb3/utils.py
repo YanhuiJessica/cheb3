@@ -5,22 +5,23 @@ def compile_file(contract_file: str,
                  base_path: str = None
                  ) -> dict[tuple[dict, str]]:
     return compile_sol(open(contract_file, 'r', encoding="utf-8").read(),
-                          contract_names=contract_names,
-                          solc_version=solc_version,
-                          base_path=base_path)
+                       contract_names=contract_names,
+                       solc_version=solc_version,
+                       base_path=base_path)
+
 
 def compile_sol(contract_source: str,
-            contract_names: str | list[str] = None,
-            solc_version: str = None,
-            base_path: str = None
-    ) -> dict[tuple[dict, str]]:
+                contract_names: str | list[str] = None,
+                solc_version: str = None,
+                base_path: str = None
+                ) -> dict[tuple[dict, str]]:
     r"""
     Compile the Solidity source and return the ABI and bytecode of
     the specific contracts.
-    
+
     Arguments:
         contract_source (str): The Solidity source code.
-        contract_name (str | list[str]): A target contract name or 
+        contract_name (str | list[str]): A target contract name or
             a list of target contract names. If not given, it will
             return all contracts in the source file.
         solc_version (str): `solc` version to use. If not given, the
@@ -45,7 +46,8 @@ def compile_sol(contract_source: str,
         set_solc_version(solc_version)
 
     compiled = compile_source(contract_source,
-                              output_values=["abi", "bin"], solc_version=solc_version,
+                              output_values=["abi", "bin"],
+                              solc_version=solc_version,
                               base_path=base_path)
     contracts = dict()
     if contract_names is None:

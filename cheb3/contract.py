@@ -1,4 +1,4 @@
-from typing import cast, Any, Optional
+from typing import cast, Optional
 
 from web3 import Web3
 from web3.contract import ContractFunction, ContractFunctions
@@ -9,6 +9,7 @@ from eth_typing import ChecksumAddress
 import eth_account
 
 from loguru import logger
+
 
 class Contract:
 
@@ -32,16 +33,18 @@ class Contract:
             self.instance = self.w3.eth.contract(**kwargs)
 
     def deploy(self, *constructor_args, **kwargs) -> None:
-        tx = self.signer.sign_transaction(self.instance.constructor(*constructor_args).build_transaction({
-            'chainId': self.w3.eth.chain_id,
-            'nonce': self.w3.eth.get_transaction_count(self.signer.address),
-            'gas': kwargs.get(
-                'gas_limit',
-                self.instance.constructor(*constructor_args).estimate_gas({'from': self.signer.address})
-            ),
-            'gasPrice': kwargs.get('gas_price', self.w3.eth.gas_price),
-            'value': kwargs.get('value', 0)
-        })).rawTransaction
+        tx = self.signer.sign_transaction(
+            self.instance.constructor(*constructor_args).build_transaction({
+                'chainId': self.w3.eth.chain_id,
+                'nonce': self.w3.eth.get_transaction_count(self.signer.address),
+                'gas': kwargs.get(
+                    'gas_limit',
+                    self.instance.constructor(*constructor_args)
+                        .estimate_gas({'from': self.signer.address})
+                ),
+                'gasPrice': kwargs.get('gas_price', self.w3.eth.gas_price),
+                'value': kwargs.get('value', 0)
+            })).rawTransaction
         logger.debug(f'Deploying {type(self).__name__} ...')
         tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
         receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash)
@@ -56,19 +59,20 @@ class Contract:
         self.functions = ContractFunctionsWrapper(self.signer, self.instance.abi, self.w3, self.address)
 
     @classmethod
-    def factory(cls, w3: Web3, contract_name: str = '') -> 'Contract':  
+    def factory(cls, w3: Web3, contract_name: str = '') -> 'Contract':
         contract = cast(Contract, PropertyCheckingFactory(
             contract_name or cls.__name__,
             (cls,),
             {'w3': w3}
         ))
         return contract
-    
+
     def get_balance(self) -> int:
         return self.w3.eth.get_balance(self.address)
 
+
 class ContractFunctionsWrapper(ContractFunctions):
-    
+
     def __init__(self,
                  signer: eth_account.Account,
                  abi: ABI,
@@ -94,8 +98,9 @@ class ContractFunctionsWrapper(ContractFunctions):
                         address=self.address,
                         function_identifier=func['name']))
 
+
 class ContractFunctionWrapper(ContractFunction):
-    
+
     signer: eth_account.Account = None
 
     def send_transaction(self, **kwargs) -> TxReceipt:

@@ -4,6 +4,7 @@ from web3 import Web3
 from web3._utils.datatypes import PropertyCheckingFactory
 import eth_account
 
+
 class Account:
 
     w3: Web3 = None
@@ -38,6 +39,6 @@ class Account:
             {'w3': w3}
         ))
         return eth_acct
-    
+
     def get_balance(self) -> int:
         return self.w3.eth.get_balance(self.eth_acct.address)

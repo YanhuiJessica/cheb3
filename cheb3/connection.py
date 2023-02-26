@@ -5,6 +5,7 @@ from web3 import Web3
 from cheb3.account import Account
 from cheb3.contract import Contract
 
+
 class Connection:
     r"""
     Creates a connection to a provider.
@@ -12,7 +13,7 @@ class Connection:
     Arguments:
         endpoint_uri (str): The full URI to the RPC endpoint.
     """
-    
+
     def __init__(self, endpoint_uri: str) -> None:
         from web3.middleware import geth_poa_middleware
 
