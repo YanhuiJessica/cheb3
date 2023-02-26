@@ -1,5 +1,15 @@
 
-def compile_sol(contract_file: str,
+def compile_file(contract_file: str,
+                 contract_names: str | list[str] = None,
+                 solc_version: str = None,
+                 base_path: str = None
+                 ) -> dict[tuple[dict, str]]:
+    return compile_sol(open(contract_file, 'r', encoding="utf-8").read(),
+                          contract_names=contract_names,
+                          solc_version=solc_version,
+                          base_path=base_path)
+
+def compile_sol(contract_source: str,
             contract_names: str | list[str] = None,
             solc_version: str = None,
             base_path: str = None
@@ -9,7 +19,7 @@ def compile_sol(contract_file: str,
     the specific contracts.
     
     Arguments:
-        contract_file (str): The path to the Solidity source file.
+        contract_source (str): The Solidity source code.
         contract_name (str | list[str]): A target contract name or 
             a list of target contract names. If not given, it will
             return all contracts in the source file.
@@ -34,7 +44,7 @@ def compile_sol(contract_file: str,
         install_solc(solc_version)
         set_solc_version(solc_version)
 
-    compiled = compile_source(open(contract_file, 'r', encoding="utf-8").read(),
+    compiled = compile_source(contract_source,
                               output_values=["abi", "bin"], solc_version=solc_version,
                               base_path=base_path)
     contracts = dict()
@@ -44,6 +54,6 @@ def compile_sol(contract_file: str,
         contract_names = [contract_names]
     for cn in contract_names:
         if f'<stdin>:{cn}' not in compiled:
-            raise Exception(f"Contract {cn} not found in {contract_file}.")
+            raise Exception(f"Contract {cn} not found.")
         contracts[cn] = (compiled[f'<stdin>:{cn}']['abi'], compiled[f'<stdin>:{cn}']['bin'])
     return contracts
