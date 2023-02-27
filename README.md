@@ -1,6 +1,6 @@
 <h1 align="center">cheb3</h1>
 
-<p align="center">🐣 web3 CTF tool based on web3py</p>
+<p align="center">🐣 web3 CTF tool based on web3.py</p>
 
 ## Install
 
@@ -44,7 +44,7 @@ base_path="node_modules/" # to include @openzeppelin contracts
 )
 >>> print(contract.functions.balanceOf(account.address).call())
 >>> contract.functions.transfer(to_addr, 10).send_transaction()
->>> print(contract.functions.balanceOf(to_addr).call())
+>>> print(contract.caller.balanceOf(to_addr)) # is equivalent to `contract.functions.balanceOf(to_addr).call()`
 ```
 
 ### Deploying new contracts
