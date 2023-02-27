@@ -1,7 +1,8 @@
 from typing import cast, Optional
+from hexbytes import HexBytes
 
 from web3 import Web3
-from web3.contract import ContractFunction, ContractFunctions
+from web3.contract import ContractFunction, ContractFunctions, ContractCaller
 from web3._utils.datatypes import PropertyCheckingFactory
 from web3._utils.abi import filter_by_type
 from web3.types import ABI, TxReceipt
@@ -57,6 +58,7 @@ class Contract:
 
     def _init_functions(self) -> None:
         self.functions = ContractFunctionsWrapper(self.signer, self.instance.abi, self.w3, self.address)
+        self.caller = ContractCaller(self.instance.abi, self.w3, self.address)
 
     @classmethod
     def factory(cls, w3: Web3, contract_name: str = '') -> 'Contract':
@@ -69,6 +71,9 @@ class Contract:
 
     def get_balance(self) -> int:
         return self.w3.eth.get_balance(self.address)
+
+    def get_storage_at(self, slot: int) -> HexBytes:
+        return self.w3.eth.get_storage_at(self.address, slot)
 
 
 class ContractFunctionsWrapper(ContractFunctions):
