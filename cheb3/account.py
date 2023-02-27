@@ -1,4 +1,5 @@
 from typing import cast
+import random, string
 
 from web3 import Web3
 from web3._utils.datatypes import PropertyCheckingFactory
@@ -21,7 +22,6 @@ class Account:
             )
 
         if private_key is None:
-            import random, string
             self.eth_acct = eth_account.Account.create(
                 ''.join(random.choices(string.ascii_letters, k=3))
             )
@@ -29,7 +29,7 @@ class Account:
             self.eth_acct = eth_account.Account.from_key(private_key)
 
         self.address = self.eth_acct.address
-        self.private_key = self.eth_acct.key
+        self.private_key = self.eth_acct.key.hex()
 
     @classmethod
     def factory(cls, w3: Web3) -> 'Account':
