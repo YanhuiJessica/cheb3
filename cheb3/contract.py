@@ -17,7 +17,10 @@ class Contract:
     # set during class construction
     w3: Web3 = None
 
-    def __init__(self, signer: eth_account.Account, address: str = None, **kwargs) -> None:
+    def __init__(self, signer: eth_account.Account = None, address: str = None, **kwargs) -> None:
+        '''
+        You can read states from the blockchain even if `signer` is not given.
+        '''
 
         if self.w3 is None:
             raise AttributeError(
@@ -57,7 +60,10 @@ class Contract:
         self._init_functions()
 
     def _init_functions(self) -> None:
-        self.functions = ContractFunctionsWrapper(self.signer, self.instance.abi, self.w3, self.address)
+        self.functions = ContractFunctionsWrapper(self.signer,
+                                                  self.instance.abi,
+                                                  self.w3,
+                                                  self.address)
         self.caller = ContractCaller(self.instance.abi, self.w3, self.address)
 
     @classmethod
@@ -117,7 +123,6 @@ class ContractFunctionWrapper(ContractFunction):
             'value': kwargs.get('value', 0)
         })).rawTransaction
         tx_hash = self.web3.eth.send_raw_transaction(tx).hex()
-        logger.debug(f'Transact to ({self.address}).{self.function_identifier} pending...')
         logger.info(f'({self.address}).{self.function_identifier} transaction hash: {tx_hash}')
         receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
         if not receipt.status:
