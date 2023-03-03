@@ -1,3 +1,7 @@
+from web3 import Web3
+from web3.exceptions import MismatchedABI
+import eth_abi
+
 
 def compile_file(contract_file: str,
                  contract_names: str | list[str] = None,
@@ -59,3 +63,12 @@ def compile_sol(contract_source: str,
             raise Exception(f"Contract {cn} not found.")
         contracts[cn] = (compiled[f'<stdin>:{cn}']['abi'], compiled[f'<stdin>:{cn}']['bin'])
     return contracts
+
+
+def encode_with_signature(signature: str, *args) -> str:
+    types = signature[signature.find('(') + 1: signature.find(')')].split(',')
+    if len(types) != len(args):
+        raise MismatchedABI("The supplied parameters do not match the signatrue.")
+    selector = Web3.solidityKeccak(['string'], [signature])[:4]
+    parameters = eth_abi.encode(types, args)
+    return f'0x{(selector + parameters).hex()}'
