@@ -1,4 +1,5 @@
 from typing import cast
+from hexbytes import HexBytes
 import random, string
 
 from web3 import Web3
@@ -45,6 +46,20 @@ class Account:
 
     def get_balance(self) -> int:
         return self.w3.eth.get_balance(self.eth_acct.address)
+
+    def call(self,
+             to: str,
+             data: str = '0x'
+             ) -> HexBytes:
+        '''
+        Interact with a smart contract without creating a new transaction
+        on the blockchain.
+        '''
+
+        return self.w3.eth.call({
+            'to': to,
+            'data': data,
+        })
 
     def send_transaction(self,
                          to: str,
