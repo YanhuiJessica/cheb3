@@ -9,6 +9,8 @@ from web3.types import ABI, TxReceipt
 from eth_typing import ChecksumAddress
 import eth_account
 
+from cheb3.account import Account
+
 from loguru import logger
 
 
@@ -17,7 +19,7 @@ class Contract:
     # set during class construction
     w3: Web3 = None
 
-    def __init__(self, signer: eth_account.Account = None, address: str = None, **kwargs) -> None:
+    def __init__(self, signer: Account = None, address: str = None, **kwargs) -> None:
         '''
         You can read states from the blockchain even if `signer` is not given.
         '''
@@ -28,7 +30,7 @@ class Contract:
                 '`Connection.contract` interface to create a contract.'
             )
 
-        self.signer = signer
+        self.signer = signer.eth_acct if signer else None
         if address:
             self.address = address
             self.instance = self.w3.eth.contract(address=address, **kwargs)
@@ -37,6 +39,9 @@ class Contract:
             self.instance = self.w3.eth.contract(**kwargs)
 
     def deploy(self, *constructor_args, **kwargs) -> None:
+        if not self.signer:
+            raise AttributeError('The `signer` is missing.')
+
         tx = self.signer.sign_transaction(
             self.instance.constructor(*constructor_args).build_transaction({
                 'chainId': self.w3.eth.chain_id,
@@ -115,6 +120,9 @@ class ContractFunctionWrapper(ContractFunction):
     signer: eth_account.Account = None
 
     def send_transaction(self, **kwargs) -> TxReceipt:
+        if not self.signer:
+            raise AttributeError('The `signer` is missing.')
+
         tx = self.signer.sign_transaction(self.build_transaction({
             'chainId': self.web3.eth.chain_id,
             'nonce': self.web3.eth.get_transaction_count(self.signer.address),
