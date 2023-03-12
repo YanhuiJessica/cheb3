@@ -1,6 +1,7 @@
 from typing import cast
 from hexbytes import HexBytes
-import random, string
+import random
+import string
 
 from web3 import Web3
 from web3._utils.datatypes import PropertyCheckingFactory
