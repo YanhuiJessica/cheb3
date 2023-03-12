@@ -1,6 +1,8 @@
 from web3 import Web3
 from web3.exceptions import MismatchedABI
+from eth_typing import HexStr
 import eth_abi
+import rlp
 
 
 def compile_file(contract_file: str,
@@ -72,3 +74,25 @@ def encode_with_signature(signature: str, *args) -> str:
     selector = Web3.solidityKeccak(['string'], [signature])[:4]
     parameters = eth_abi.encode(types, args)
     return f'0x{(selector + parameters).hex()}'
+
+
+def calc_create_address(sender: HexStr, nonce: int) -> str:
+    return Web3.toChecksumAddress(
+        Web3.keccak(
+            rlp.encode([Web3.toBytes(hexstr=sender), nonce])
+        )[12:].hex()
+    )
+
+
+def calc_create2_address(sender: HexStr, salt: int, initcode: HexStr) -> str:
+    return Web3.toChecksumAddress(
+        Web3.soliditySha3(
+            ['bytes1', 'address', 'uint256', 'bytes32'],
+            [
+                b'\xff',
+                Web3.toChecksumAddress(sender),
+                salt,
+                Web3.soliditySha3(['bytes'], [initcode])
+            ]
+        )[12:].hex()
+    )
