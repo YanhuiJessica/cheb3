@@ -1,8 +1,16 @@
-from typing import cast, Optional
+from typing import (
+    cast,
+    Optional,
+    Union
+)
 from hexbytes import HexBytes
 
-from web3 import Web3
-from web3.contract import ContractFunction, ContractFunctions, ContractCaller
+from web3 import Web3, AsyncWeb3
+from web3.contract.contract import (
+    ContractFunction,
+    ContractFunctions,
+    ContractCaller
+)
 from web3._utils.datatypes import PropertyCheckingFactory
 from web3._utils.abi import filter_by_type
 from web3.types import ABI, TxReceipt
@@ -69,7 +77,9 @@ class Contract:
                                                   self.instance.abi,
                                                   self.w3,
                                                   self.address)
-        self.caller = ContractCaller(self.instance.abi, self.w3, self.address)
+        self.caller = ContractCaller(self.instance.abi,
+                                     self.w3,
+                                     self.address)
 
     @classmethod
     def factory(cls, w3: Web3, contract_name: str = '') -> 'Contract':
@@ -92,11 +102,11 @@ class ContractFunctionsWrapper(ContractFunctions):
     def __init__(self,
                  signer: eth_account.Account,
                  abi: ABI,
-                 web3: Web3,
+                 w3: Union['Web3', 'AsyncWeb3'],
                  address: Optional[ChecksumAddress] = None
                  ) -> None:
         self.abi = abi
-        self.web3 = web3
+        self.w3 = w3
         self.address = address
         self.signer = signer
 
@@ -108,7 +118,7 @@ class ContractFunctionsWrapper(ContractFunctions):
                     func['name'],
                     ContractFunctionWrapper.factory(
                         func['name'],
-                        web3=self.web3,
+                        w3=self.w3,
                         signer=self.signer,
                         contract_abi=self.abi,
                         address=self.address,
@@ -124,15 +134,15 @@ class ContractFunctionWrapper(ContractFunction):
             raise AttributeError('The `signer` is missing.')
 
         tx = self.signer.sign_transaction(self.build_transaction({
-            'chainId': self.web3.eth.chain_id,
-            'nonce': self.web3.eth.get_transaction_count(self.signer.address),
+            'chainId': self.w3.eth.chain_id,
+            'nonce': self.w3.eth.get_transaction_count(self.signer.address),
             'gas': kwargs.get('gas_limit', self.estimate_gas({'from': self.signer.address})),
-            'gasPrice': kwargs.get('gas_price', self.web3.eth.gas_price),
+            'gasPrice': kwargs.get('gas_price', self.w3.eth.gas_price),
             'value': kwargs.get('value', 0)
         })).rawTransaction
-        tx_hash = self.web3.eth.send_raw_transaction(tx).hex()
+        tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
         logger.info(f'({self.address}).{self.function_identifier} transaction hash: {tx_hash}')
-        receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
+        receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash)
         if not receipt.status:
             raise Exception(f"Transact to ({self.address}).{self.function_identifier} errored.")
         return receipt

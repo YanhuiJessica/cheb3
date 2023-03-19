@@ -20,7 +20,7 @@ class Connection:
         self.w3 = Web3(Web3.HTTPProvider(endpoint_uri))
         self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
-        if not self.w3.isConnected():
+        if not self.w3.is_connected():
             raise Exception(f"Could not connect to {endpoint_uri}.")
 
     def account(self, private_key: str = None) -> Account:
