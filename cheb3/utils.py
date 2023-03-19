@@ -68,31 +68,35 @@ def compile_sol(contract_source: str,
 
 
 def encode_with_signature(signature: str, *args) -> str:
+    '''
+    The same as `abi.encodeWithSignature` in Solidity.
+    '''
+
     types = signature[signature.find('(') + 1: signature.find(')')].split(',')
     if len(types) != len(args):
         raise MismatchedABI("The supplied parameters do not match the signatrue.")
-    selector = Web3.solidityKeccak(['string'], [signature])[:4]
+    selector = Web3.solidity_keccak(['string'], [signature])[:4]
     parameters = eth_abi.encode(types, args)
     return f'0x{(selector + parameters).hex()}'
 
 
 def calc_create_address(sender: HexStr, nonce: int) -> str:
-    return Web3.toChecksumAddress(
+    return Web3.to_checksum_address(
         Web3.keccak(
-            rlp.encode([Web3.toBytes(hexstr=sender), nonce])
+            rlp.encode([Web3.to_bytes(hexstr=sender), nonce])
         )[12:].hex()
     )
 
 
 def calc_create2_address(sender: HexStr, salt: int, initcode: HexStr) -> str:
-    return Web3.toChecksumAddress(
-        Web3.soliditySha3(
+    return Web3.to_checksum_address(
+        Web3.solidity_keccak(
             ['bytes1', 'address', 'uint256', 'bytes32'],
             [
                 b'\xff',
-                Web3.toChecksumAddress(sender),
+                Web3.to_checksum_address(sender),
                 salt,
-                Web3.soliditySha3(['bytes'], [initcode])
+                Web3.solidity_keccak(['bytes'], [initcode])
             ]
         )[12:].hex()
     )
