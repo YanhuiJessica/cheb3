@@ -9,6 +9,10 @@ authors = [{name = "YanhuiJessica",email = "y4nhv1@gmail.com"}]
 description = "Web3 CTF tool based on web3.py"
 readme = "README.md"
 requires-python = ">=3.8"
+dependencies = [
+  "web3>=6.0.0",
+  "py-solc-x"
+]
 classifiers = [
   "Development Status :: 3 - Alpha",
 
