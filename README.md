@@ -54,3 +54,7 @@ base_path="node_modules/" # to include @openzeppelin contracts
 >>> contract.deploy("Cheb3Token", "CT") # deploy the contract
 >>> print(contract.functions.balanceOf(account.address).call())
 ```
+
+## Examples
+
+Examples of using `cheb3` in CTF challenges can be found in [/examples](./examples).

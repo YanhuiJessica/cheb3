@@ -1,15 +1,16 @@
 from web3 import Web3
 from web3.exceptions import MismatchedABI
 from eth_typing import HexStr
+from typing import List, Tuple, Dict, Union
 import eth_abi
 import rlp
 
 
 def compile_file(contract_file: str,
-                 contract_names: str | list[str] = None,
+                 contract_names: Union[str, List[str]] = None,
                  solc_version: str = None,
                  base_path: str = None
-                 ) -> dict[tuple[dict, str]]:
+                 ) -> Dict[str, Tuple[Dict, str]]:
     return compile_sol(open(contract_file, 'r', encoding="utf-8").read(),
                        contract_names=contract_names,
                        solc_version=solc_version,
@@ -17,10 +18,10 @@ def compile_file(contract_file: str,
 
 
 def compile_sol(contract_source: str,
-                contract_names: str | list[str] = None,
+                contract_names: Union[str, List[str]] = None,
                 solc_version: str = None,
                 base_path: str = None
-                ) -> dict[tuple[dict, str]]:
+                ) -> Dict[str, Tuple[Dict, str]]:
     r"""
     Compile the Solidity source and return the ABI and bytecode of
     the specific contracts.
