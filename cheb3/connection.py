@@ -1,6 +1,7 @@
 from typing import Any
 
 from web3 import Web3
+from web3.middleware import geth_poa_middleware
 
 from cheb3.account import Account
 from cheb3.contract import Contract
@@ -15,8 +16,6 @@ class Connection:
     """
 
     def __init__(self, endpoint_uri: str) -> None:
-        from web3.middleware import geth_poa_middleware
-
         self.w3 = Web3(Web3.HTTPProvider(endpoint_uri))
         self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
