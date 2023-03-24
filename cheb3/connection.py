@@ -26,10 +26,12 @@ class Connection:
         account_factory = Account.factory(self.w3)
         return account_factory(private_key)
 
-    def contract(self,
-                 signer: Account = None,
-                 contract_name: str = '',
-                 address: str = None,
-                 **kwargs: Any) -> Contract:
+    def contract(
+        self,
+        signer: Account = None,
+        contract_name: str = "",
+        address: str = None,
+        **kwargs: Any,
+    ) -> Contract:
         contract_factory = Contract.factory(self.w3, contract_name)
         return contract_factory(signer, address, **kwargs)
