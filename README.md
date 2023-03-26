@@ -35,6 +35,8 @@ base_path="node_modules/" # to include @openzeppelin contracts
 
 ### Interacting with existing contracts
 
+#### Using ABI
+
 ```py
 >>> to_addr = "0xAcF2f2575dFe641B350fE671f2Eb7E796A4ba402"
 >>> contract = conn.contract(
@@ -45,6 +47,16 @@ base_path="node_modules/" # to include @openzeppelin contracts
 >>> print(contract.functions.balanceOf(account.address).call())
 >>> contract.functions.transfer(to_addr, 10).send_transaction()
 >>> print(contract.caller.balanceOf(to_addr)) # is equivalent to `contract.functions.balanceOf(to_addr).call()`
+```
+
+#### Using function signatures
+
+```py
+>>> from cheb3.utils import encode_with_signature
+>>> 
+>>> contract_addr = contract.address
+>>> account.send_transaction(contract_addr, data=encode_with_signature("transfer(address,uint256)", to_addr, 10))
+>>> print(int.from_bytes(account.call(contract_addr, data=encode_with_signature("balanceOf(address)", to_addr)), 'big'))
 ```
 
 ### Deploying new contracts
