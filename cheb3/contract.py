@@ -2,9 +2,22 @@ from typing import cast, Optional, Union
 from hexbytes import HexBytes
 
 from web3 import Web3, AsyncWeb3
-from web3.contract.contract import ContractFunction, ContractFunctions, ContractCaller
+from web3.contract.contract import (
+    ContractFunction,
+    ContractFunctions,
+    ContractCaller,
+)
+from web3.contract.base_contract import (
+    NonExistentFallbackFunction,
+    NonExistentReceiveFunction,
+)
 from web3._utils.datatypes import PropertyCheckingFactory
-from web3._utils.abi import filter_by_type
+from web3._utils.abi import (
+    filter_by_type,
+    fallback_func_abi_exists,
+    receive_func_abi_exists,
+)
+from web3._utils.function_identifiers import FallbackFn, ReceiveFn
 from web3.types import ABI, TxReceipt
 from eth_typing import ChecksumAddress
 import eth_account
@@ -35,6 +48,7 @@ class Contract:
             self.instance = self.w3.eth.contract(address=address, **kwargs)
             self._init_functions()
         else:
+            self.address = None
             self.instance = self.w3.eth.contract(**kwargs)
 
     def deploy(self, *constructor_args, **kwargs) -> None:
@@ -73,11 +87,50 @@ class Contract:
         self.instance = self.w3.eth.contract(self.address, abi=self.instance.abi)
         self._init_functions()
 
+    @staticmethod
+    def get_fallback_function(
+        abi: ABI, w3: Web3, signer: eth_account.Account, address: str
+    ):
+        if abi and fallback_func_abi_exists(abi):
+            return ContractFunctionWrapper.factory(
+                "fallback",
+                w3=w3,
+                signer=signer,
+                contract_abi=abi,
+                address=address,
+                function_identifier=FallbackFn,
+            )()
+        else:
+            return cast(ContractFunctionWrapper, NonExistentFallbackFunction())
+
+    @staticmethod
+    def get_receive_function(
+        abi: ABI, w3: Web3, signer: eth_account.Account, address: str
+    ):
+        if abi and receive_func_abi_exists(abi):
+            return ContractFunctionWrapper.factory(
+                "receive",
+                w3=w3,
+                signer=signer,
+                contract_abi=abi,
+                address=address,
+                function_identifier=ReceiveFn,
+            )()
+        else:
+            return cast(ContractFunctionWrapper, NonExistentReceiveFunction())
+
     def _init_functions(self) -> None:
         self.functions = ContractFunctionsWrapper(
             self.signer, self.instance.abi, self.w3, self.address
         )
         self.caller = ContractCaller(self.instance.abi, self.w3, self.address)
+
+        self.fallback = self.get_fallback_function(
+            self.instance.abi, self.w3, self.signer, self.address
+        )
+        self.receive = self.get_receive_function(
+            self.instance.abi, self.w3, self.signer, self.address
+        )
 
     @classmethod
     def factory(cls, w3: Web3, contract_name: str = "") -> "Contract":
@@ -145,12 +198,13 @@ class ContractFunctionWrapper(ContractFunction):
             )
         ).rawTransaction
         tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
-        logger.info(
-            f"({self.address}).{self.function_identifier} transaction hash: {tx_hash}"
+        func_name = (
+            self.function_identifier
+            if isinstance(self.function_identifier, str)
+            else self.function_identifier.__name__
         )
+        logger.info(f"({self.address}).{func_name} transaction hash: {tx_hash}")
         receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash)
         if not receipt.status:
-            raise Exception(
-                f"Transact to ({self.address}).{self.function_identifier} errored."
-            )
+            raise Exception(f"Transact to ({self.address}).{func_name} errored.")
         return receipt
