@@ -86,6 +86,7 @@ def encode_with_signature(signature: str, *args) -> str:
     """
 
     types = signature[signature.find("(") + 1: signature.find(")")].split(",")
+    types = types[:-1] if types[-1] == "" else types
     if len(types) != len(args):
         raise MismatchedABI("The supplied parameters do not match the signatrue.")
     selector = Web3.solidity_keccak(["string"], [signature])[:4]
