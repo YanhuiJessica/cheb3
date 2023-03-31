@@ -10,6 +10,8 @@ from solcx import compile_source, set_solc_version
 from solcx.install import install_solc
 from solcx.exceptions import SolcNotInstalled
 
+from constants import TYPE_ALIAS
+
 
 def compile_file(
     contract_file: str,
@@ -89,7 +91,12 @@ def encode_with_signature(signature: str, *args) -> str:
     types = types[:-1] if types[-1] == "" else types
     if len(types) != len(args):
         raise MismatchedABI("The supplied parameters do not match the signatrue.")
-    selector = Web3.solidity_keccak(["string"], [signature])[:4]
+
+    signature = signature[: signature.find("(")]
+    for t in types:
+        signature += TYPE_ALIAS.get(t, t)
+    selector = Web3.solidity_keccak(["string"], [signature + ")"])[:4]
+
     parameters = eth_abi.encode(types, args)
     return f"0x{(selector + parameters).hex()}"
 
