@@ -93,8 +93,7 @@ def encode_with_signature(signature: str, *args) -> str:
         raise MismatchedABI("The supplied parameters do not match the signatrue.")
 
     signature = signature[: signature.find("(") + 1]
-    for t in types:
-        signature += TYPE_ALIAS.get(t, t)
+    signature += ','.join([TYPE_ALIAS.get(t, t) for t in types])
     selector = Web3.solidity_keccak(["string"], [signature + ")"])[:4]
 
     parameters = eth_abi.encode(types, args)
