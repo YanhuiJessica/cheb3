@@ -1,4 +1,5 @@
 from typing import Any
+from hexbytes import HexBytes
 
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
@@ -35,3 +36,9 @@ class Connection:
     ) -> Contract:
         contract_factory = Contract.factory(self.w3, contract_name)
         return contract_factory(signer, address, **kwargs)
+
+    def get_balance(self, address: str) -> int:
+        return self.w3.eth.get_balance(address)
+
+    def get_storage_at(self, address: str, slot: int) -> HexBytes:
+        return self.w3.eth.get_storage_at(address, slot)
