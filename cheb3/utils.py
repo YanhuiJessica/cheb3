@@ -10,7 +10,7 @@ from solcx import compile_source, set_solc_version
 from solcx.install import install_solc
 from solcx.exceptions import SolcNotInstalled
 
-from constants import TYPE_ALIAS
+from cheb3.constants import TYPE_ALIAS
 
 
 def compile_file(

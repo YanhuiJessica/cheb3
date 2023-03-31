@@ -54,6 +54,7 @@ class Account:
         return self.w3.eth.call(
             {
                 "to": to,
+                "from": self.address,
                 "data": data,
             }
         )
@@ -76,7 +77,7 @@ class Account:
             "from": self.address,
             "to": to,
             "chainId": self.w3.eth.chain_id,
-            "nonce": self.w3.eth.get_transaction_count(self.eth_acct.address),
+            "nonce": self.w3.eth.get_transaction_count(self.address),
             "value": value,
             "gasPrice": kwargs.get("gas_price", self.w3.eth.gas_price),
             "data": data,
