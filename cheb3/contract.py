@@ -41,6 +41,12 @@ class Contract:
         if not self.signer:
             raise AttributeError("The `signer` is missing.")
 
+        if self.address:
+            logger.info(
+                f"Contract {type(self).__name__} has already been deployed at {self.address}."
+            )
+            return
+
         tx = self.signer.sign_transaction(
             self.instance.constructor(*constructor_args).build_transaction(
                 {
