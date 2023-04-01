@@ -17,6 +17,10 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python3 -m pip install -U pip
+          pip install pytest git+https://github.com/YanhuiJessica/cheb3.git#egg=cheb3
       - name: Python ${{ matrix.python-version }} test utils
         run: |
           python3 -m pytest tests/utils
