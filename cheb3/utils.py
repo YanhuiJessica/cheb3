@@ -33,21 +33,23 @@ def compile_sol(
     solc_version: str = None,
     base_path: str = None,
 ) -> Dict[str, Tuple[Dict, str]]:
-    r"""
-    Compile the Solidity source and return the ABI and bytecode of
+    r"""Compile the Solidity source and return the ABI and bytecode of
     the specific contracts.
 
     Arguments:
         contract_source (str): The Solidity source code.
+
         contract_name (str | list[str]): A target contract name or
-            a list of target contract names. If not given, it will
-            return all contracts in the source file.
+        a list of target contract names. If not given, it will
+        return all contracts in the source file.
+
         solc_version (str): `solc` version to use. If not given, the
-            currently active version is used. If the specified version
-            is not installed, it will be installed automatically.
+        currently active version is used. If the specified version
+        is not installed, it will be installed automatically.
+
         base_path (str): Use the given path as the root of the source
-            tree to include other dependence contracts, e.g. the path to
-            openzeppelin contracts.
+        tree to include other dependence contracts, e.g. the path to
+        openzeppelin contracts.
 
     Returns:
         A dict, mapping the contract name to a tuple of the ABI and bytecode.
