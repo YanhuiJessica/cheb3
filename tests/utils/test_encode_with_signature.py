@@ -17,7 +17,7 @@ def test_function_with_multiple_args():
 def test_function_with_bytes():
     assert (
         encode_with_signature("foo(bytes)", b"test")
-        == f"0x30c8d1da{32:0>64x}{4:0>64}{b'test'.hex():0<64}"
+        == f"0x30c8d1da{32:0>64x}{4:0>64x}{b'test'.hex():0<64}"
     )
 
 
@@ -35,11 +35,27 @@ def test_uint_type_alias():
     assert encode_with_signature("foo(uint)", 1) == encode_with_signature(
         "foo(uint256)", 1
     )
-    assert encode_with_signature("foo(uint)", 1) == f"0x2fbebd38{1:0>64}"
+    assert encode_with_signature("foo(uint)", 1) == f"0x2fbebd38{1:0>64x}"
 
 
 def test_int_type_alias():
     assert encode_with_signature("foo(int)", 1) == encode_with_signature(
         "foo(int256)", 1
     )
-    assert encode_with_signature("foo(int)", 1) == f"0x4c970b2f{1:0>64}"
+    assert encode_with_signature("foo(int)", 1) == f"0x4c970b2f{1:0>64x}"
+
+
+def test_uint_array():
+    assert (
+        encode_with_signature("foo(uint256[])", [23, 32])
+        == f"0x8b44cef1{0x20:0>64x}{2:0>64}{23:0>64x}{32:0>64x}"
+    )
+
+
+def test_simple_struct():
+    assert (
+        encode_with_signature(
+            "foo((uint256,bytes32))", [233, b"\x33".rjust(32, b"\x00")]
+        )
+        == f"0x9d8a8ba8{233:0>64x}{0x33:0>64x}"
+    )

@@ -1,4 +1,5 @@
-from typing import List, Tuple, Dict, Union
+from typing import List, Tuple, Dict, Union, Any
+from itertools import accumulate
 
 from web3 import Web3
 from web3.exceptions import MismatchedABI
@@ -89,14 +90,35 @@ def encode_with_signature(signature: str, *args) -> str:
     The same as `abi.encodeWithSignature` in Solidity.
     """
 
-    types = signature[signature.find("(") + 1: signature.find(")")].split(",")
-    types = types[:-1] if types[-1] == "" else types
-    if len(types) != len(args):
-        raise MismatchedABI("The supplied parameters do not match the signatrue.")
+    def dfs(type_str: str) -> Tuple[str, Any]:
+        if not type_str:
+            return ("", [])
+        levels = accumulate(
+            (p == "(") - (s == ")") for p, s in zip(f" {type_str}", f"{type_str} ")
+        )
+        types = "".join(
+            [c, "\n"][c == "," and lv == 0] for c, lv in zip(type_str, levels)
+        ).split(
+            "\n"
+        )  # split by comma at level 0
+        sig = ""
+        for i in range(len(types)):
+            if "(" in types[i]:
+                ret = dfs(types[i][1:-1])
+                sig += f"({ret[0]}),"
+                types[i] = f"({','.join(ret[1])})"
+                continue
+            types[i] = TYPE_ALIAS.get(types[i], types[i])
+            sig += f"{types[i]},"
+        return (sig[:-1], types)
 
-    signature = signature[: signature.find("(") + 1]
-    signature += ','.join([TYPE_ALIAS.get(t, t) for t in types])
-    selector = Web3.solidity_keccak(["string"], [signature + ")"])[:4]
+    ret = dfs(signature[signature.find("(") + 1 : -1])
+    signature = signature[: signature.find("(") + 1] + ret[0] + ")"
+    types = ret[1]
+    if len(types) != len(args):
+        raise MismatchedABI("Thypee supplied parameters do not match the signatrue.")
+
+    selector = Web3.solidity_keccak(["string"], [signature])[:4]
 
     parameters = eth_abi.encode(types, args)
     return f"0x{(selector + parameters).hex()}"
