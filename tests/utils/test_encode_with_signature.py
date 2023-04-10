@@ -45,17 +45,65 @@ def test_int_type_alias():
     assert encode_with_signature("foo(int)", 1) == f"0x4c970b2f{1:0>64x}"
 
 
-def test_uint_array():
+def test_uint_dynamic_array():
     assert (
         encode_with_signature("foo(uint256[])", [23, 32])
         == f"0x8b44cef1{0x20:0>64x}{2:0>64}{23:0>64x}{32:0>64x}"
     )
 
 
+def test_uint_static_array():
+    assert (
+        encode_with_signature("foo(uint[2])", [23, 32])
+        == f"0x4f5d13ef{23:0>64x}{32:0>64x}"
+    )
+
+
 def test_simple_struct():
     assert (
-        encode_with_signature(
-            "foo((uint256,bytes32))", [233, b"\x33".rjust(32, b"\x00")]
-        )
+        encode_with_signature("foo((uint,bytes32))", [233, b"\x33".rjust(32, b"\x00")])
         == f"0x9d8a8ba8{233:0>64x}{0x33:0>64x}"
+    )
+
+
+def test_simple_struct_in_multiple_args():
+    assert (
+        encode_with_signature(
+            "foo(uint256,uint[],(uint,bytes32))",
+            1337,
+            [23, 32],
+            [233, b"\x33".rjust(32, b"\x00")],
+        )
+        == f"0xf24fcaec{1337:0>64x}{0x80:0>64x}{233:0>64x}{0x33:0>64x}{2:0>64x}{23:0>64x}{32:0>64x}"
+    )
+
+
+def test_nested_struct():
+    assert (
+        encode_with_signature(
+            "foo((uint256,(uint,bytes32)))",
+            [233, [332, b"\x33".rjust(32, b"\x00")]],
+        )
+        == f"0xa49b1396{233:0>64x}{332:0>64x}{0x33:0>64x}"
+    )
+
+
+def test_struct_with_dynamic_types():
+    assert (
+        encode_with_signature(
+            "foo((uint256,bytes))",
+            [233, b"hello"],
+        )
+        == f"0x73be91a3{0x20:0>64x}{233:0>64x}{0x40:0>64x}{5:0>64x}{b'hello'.hex():0<64}"
+    )
+
+
+def test_struct_array():
+    address = 0x617F2E2FD72FD9D5503197092AC168C91465E7F2
+    assert (
+        encode_with_signature(
+            "foo((uint256,address)[])",
+            [[233, hex(address)], [332, hex(address)]],
+        )
+        == f"0xbff1570d{0x20:0>64x}{2:0>64x}{233:0>64x}{address:0>64x}{332:0>64x}{address:0>64x}"
     )

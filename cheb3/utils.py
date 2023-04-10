@@ -103,12 +103,16 @@ def encode_with_signature(signature: str, *args) -> str:
         )  # split by comma at level 0
         sig = ""
         for i in range(len(types)):
-            if "(" in types[i]:
-                ret = dfs(types[i][1:-1])
-                sig += f"({ret[0]}),"
-                types[i] = f"({','.join(ret[1])})"
+            if (square_left := types[i].rfind("[")) != -1:
+                base, append = types[i][:square_left], types[i][square_left:]
+            else:
+                base, append = types[i], ""
+            if "(" == types[i][0]:
+                ret = dfs(base[1:-1])
+                sig += f"({ret[0]}){append},"
+                types[i] = f"({','.join(ret[1])}){append}"
                 continue
-            types[i] = TYPE_ALIAS.get(types[i], types[i])
+            types[i] = TYPE_ALIAS.get(base, base) + append
             sig += f"{types[i]},"
         return (sig[:-1], types)
 
