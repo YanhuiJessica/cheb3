@@ -20,6 +20,10 @@ def compile_file(
     solc_version: str = None,
     base_path: str = None,
 ) -> Dict[str, Tuple[Dict, str]]:
+    """Compile the Solidity source in the given file.
+
+    Check :func:`compile_sol` for more details.
+    """
     return compile_sol(
         open(contract_file, "r", encoding="utf-8").read(),
         contract_names=contract_names,
@@ -34,26 +38,28 @@ def compile_sol(
     solc_version: str = None,
     base_path: str = None,
 ) -> Dict[str, Tuple[Dict, str]]:
-    r"""Compile the Solidity source and return the ABI and bytecode of
+    """Compile the Solidity source and return the ABI and bytecode of
     the specific contracts.
 
-    Arguments:
-        contract_source (str): The Solidity source code.
+    :param contract_source: The Solidity source code.
+    :type contract_source: str
+    :param contract_name: A target contract name or a list of target
+        contract names. If not given, it will return all contracts in
+        the source file. Default to :const:`None`.
+    :type contract_name: str | list[str]
+    :param solc_version: `solc` version to use. If not given, the
+        currently active version is used. If the specified version is
+        not installed, it will be installed automatically. Default to
+        :const:`None`.
+    :type solc_version: str
+    :param base_path: Use the given path as the root of the source tree
+        to include other dependence contracts, e.g. the path to
+        openzeppelin contracts. Default to :const:`None`.
+    :type base_path: str
 
-        contract_name (str | list[str]): A target contract name or
-        a list of target contract names. If not given, it will
-        return all contracts in the source file.
-
-        solc_version (str): `solc` version to use. If not given, the
-        currently active version is used. If the specified version
-        is not installed, it will be installed automatically.
-
-        base_path (str): Use the given path as the root of the source
-        tree to include other dependence contracts, e.g. the path to
-        openzeppelin contracts.
-
-    Returns:
-        A dict, mapping the contract name to a tuple of the ABI and bytecode.
+    :return: A dict, mapping the contract name to a tuple of the ABI and
+        bytecode.
+    :rtype: dict[str, tuple[dict, str]]
     """
 
     try:
@@ -85,9 +91,21 @@ def compile_sol(
     return contracts
 
 
-def encode_with_signature(signature: str, *args) -> str:
-    """
-    The same as `abi.encodeWithSignature` in Solidity.
+def encode_with_signature(signature: str, *args) -> HexStr:
+    """The same as `abi.encodeWithSignature` in Solidity except that
+    it can handle type alias.
+
+    Examples:
+
+        >>> encode_with_signature("transfer(address,uint)", "0x617F2E2fD72FD9D5503197092aC168c91465E7f2", 100)
+        '0xa9059cbb000000000000000000000000617f2e2fd72fd9d5503197092ac168c91465e7f20000000000000000000000000000000000000000000000000000000000000064'
+
+    :param signature: The function signature.
+    :type signature: str
+    :param `*args`: The parameters to be encoded.
+
+    :return: The encoded data.
+    :rtype: HexStr
     """
 
     def dfs(type_str: str) -> Tuple[str, Any]:
@@ -103,7 +121,7 @@ def encode_with_signature(signature: str, *args) -> str:
         )  # split by comma at level 0
         sig = ""
         for i in range(len(types)):
-            if (square_left := types[i].rfind("[")) != -1:
+            if (square_left := types[i].rfind("[")) != -1: # array
                 base, append = types[i][:square_left], types[i][square_left:]
             else:
                 base, append = types[i], ""
@@ -128,13 +146,38 @@ def encode_with_signature(signature: str, *args) -> str:
     return f"0x{(selector + parameters).hex()}"
 
 
-def calc_create_address(sender: HexStr, nonce: int) -> str:
+def calc_create_address(sender: HexStr, nonce: int) -> HexStr:
+    """Calculate the address of the contract created by the given sender
+    using the `CREATE` opcode with the given nonce.
+
+    :param sender: The address of the sender.
+    :type sender: HexStr
+    :param nonce: The transaction count of the sender before the
+        creation.
+    :type nonce: int
+
+    :return: The address of the contract.
+    :rtype: HexStr
+    """
     return Web3.to_checksum_address(
         Web3.keccak(rlp.encode([Web3.to_bytes(hexstr=sender), nonce]))[12:].hex()
     )
 
 
-def calc_create2_address(sender: HexStr, salt: int, initcode: HexStr) -> str:
+def calc_create2_address(sender: HexStr, salt: int, initcode: HexStr) -> HexStr:
+    """Calculate the address of the contract created by the given sender
+    using the `CREATE2` opcode with the given salt and contract bytecode.
+
+    :param sender: The address of the sender.
+    :type sender: HexStr
+    :param salt: The salt.
+    :type salt: int
+    :param initcode: The contract bytecode.
+    :type initcode: HexStr
+
+    :return: The address of the contract.
+    :rtype: HexStr
+    """
     return Web3.to_checksum_address(
         Web3.solidity_keccak(
             ["bytes1", "address", "uint256", "bytes32"],
