@@ -44,17 +44,16 @@ def compile_sol(
     :param contract_source: The Solidity source code.
     :type contract_source: str
     :param contract_name: A target contract name or a list of target
-        contract names. If not given, it will return all contracts in
-        the source file. Default to :const:`None`.
+        contract names, defaults to :const:`None`. If not given, it
+        will return all contracts in the source file.
     :type contract_name: str | list[str]
-    :param solc_version: `solc` version to use. If not given, the
-        currently active version is used. If the specified version is
-        not installed, it will be installed automatically. Default to
-        :const:`None`.
+    :param solc_version: `solc` version to use, defaults to :const:`None`.
+        If not given, the currently active version is used. If the specified
+        version is not installed, it will be installed automatically.
     :type solc_version: str
     :param base_path: Use the given path as the root of the source tree
         to include other dependence contracts, e.g. the path to
-        openzeppelin contracts. Default to :const:`None`.
+        openzeppelin contracts. Defaults to :const:`None`.
     :type base_path: str
 
     :return: A dict, mapping the contract name to a tuple of the ABI and
@@ -121,7 +120,7 @@ def encode_with_signature(signature: str, *args) -> HexStr:
         )  # split by comma at level 0
         sig = ""
         for i in range(len(types)):
-            if (square_left := types[i].rfind("[")) != -1: # array
+            if (square_left := types[i].rfind("[")) != -1:  # array
                 base, append = types[i][:square_left], types[i][square_left:]
             else:
                 base, append = types[i], ""

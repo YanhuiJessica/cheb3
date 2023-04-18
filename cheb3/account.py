@@ -6,18 +6,21 @@ import string
 from web3 import Web3
 from web3._utils.datatypes import PropertyCheckingFactory
 from web3.types import TxReceipt
+from eth_typing import HexStr
 import eth_account
 
 from loguru import logger
 
 
 class Account:
+    """Please use the :func:`cheb3.Connection.account` interface to
+    create an account instance associated with the connection.
+    """
+
     w3: Web3 = None
 
     def __init__(self, private_key: str = None) -> None:
-        """
-        It will create a new account if `private_key` is not given.
-        """
+        """Creates a new account if `private_key` is not given."""
 
         if self.w3 is None:
             raise AttributeError(
@@ -43,12 +46,19 @@ class Account:
         return eth_acct
 
     def get_balance(self) -> int:
+        """Get the balance of the account instance."""
         return self.w3.eth.get_balance(self.eth_acct.address)
 
-    def call(self, to: str, data: str = "0x") -> HexBytes:
-        """
-        Interact with a smart contract without creating a new transaction
-        on the blockchain.
+    def call(self, to: HexStr, data: HexStr = "0x") -> HexBytes:
+        """Interact with a smart contract without creating a new
+        transaction on the blockchain.
+
+        :param to: The address of the contract.
+        :type to: HexStr
+        :param data: The transaction data, defaults to `0x`.
+        :type data: HexStr
+
+        :rtype: ~hexbytes.main.HexBytes
         """
 
         return self.w3.eth.call(
@@ -60,17 +70,22 @@ class Account:
         )
 
     def send_transaction(
-        self, to: str, value: int = 0, data: str = "0x", **kwargs
+        self, to: HexStr, value: int = 0, data: HexStr = "0x", **kwargs
     ) -> TxReceipt:
-        """
-        Transfer ETH to another account or interact with a smart contract.
+        """Transfer ETH or interact with a smart contract.
 
-        Arguments:
-            to (str): The address of the receiver.
-            value (int): The amount to transfer.
-            data (str): The transaction data, a hex string starts with '0x'.
-            gas_price (int)
-            gas_limit (int)
+        :param to: The address of the receiver.
+        :type to: HexStr
+        :param value: The amount to transfer, defaults to 0.
+        :type value: int
+        :param data: The transaction data, defaults to `0x`.
+        :type data: HexStr
+
+        Keyword Args:
+            gas_price (int): Specify the gas price for the transaction.
+            gas_limit (int): Specify the maximum gas the transaction can use.
+
+        :rtype: TxReceipt
         """
 
         tx = {
