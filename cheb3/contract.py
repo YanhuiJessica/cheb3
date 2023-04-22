@@ -28,6 +28,10 @@ from loguru import logger
 
 
 class Contract:
+    """Please use :func:`cheb3.Connection.contract` interface to
+    create a contract instance associated with the connection.
+    """
+
     # set during class construction
     w3: Web3 = None
 
@@ -52,6 +56,14 @@ class Contract:
             self.instance = self.w3.eth.contract(**kwargs)
 
     def deploy(self, *constructor_args, **kwargs) -> None:
+        """Deploys the contract.
+
+        :param constructor_args: Constructor arguments.
+
+        Keyword Args:
+            gas_price (int): Specify the gas price for the deployment.
+            gas_limit (int): Specify the maximum gas the deployment can use.
+        """
         if not self.signer:
             raise AttributeError("The `signer` is missing.")
 
@@ -141,9 +153,17 @@ class Contract:
         return contract
 
     def get_balance(self) -> int:
+        """Returns the balance of the contract instance."""
         return self.w3.eth.get_balance(self.address)
 
     def get_storage_at(self, slot: int) -> HexBytes:
+        """Returns the value from a storage position for the contract instance.
+
+        :param slot: The storage slot.
+        :type slot: int
+
+        :rtype: ~hexbytes.main.HexBytes
+        """
         return self.w3.eth.get_storage_at(self.address, slot)
 
 

@@ -13,7 +13,7 @@ from loguru import logger
 
 
 class Account:
-    """Please use the :func:`cheb3.Connection.account` interface to
+    """Please use :func:`cheb3.Connection.account` interface to
     create an account instance associated with the connection.
     """
 
@@ -46,7 +46,7 @@ class Account:
         return eth_acct
 
     def get_balance(self) -> int:
-        """Get the balance of the account instance."""
+        """Returns the balance of the account instance."""
         return self.w3.eth.get_balance(self.eth_acct.address)
 
     def call(self, to: HexStr, data: HexStr = "0x") -> HexBytes:
