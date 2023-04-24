@@ -1,9 +1,7 @@
 Connection
 ==========
 
-.. py:module:: cheb3.connection
-
 TBD
 
-.. autoclass:: Connection
-   :members:
+.. autoclass:: cheb3.Connection
+    :members:

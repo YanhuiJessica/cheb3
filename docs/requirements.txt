@@ -55,3 +55,5 @@ sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
 urllib3==1.26.15
     # via requests
+-e git+https://github.com/YanhuiJessica/cheb3.git#egg=cheb3
+    # temporary

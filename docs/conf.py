@@ -8,15 +8,14 @@ author = "YanhuiJessica"
 # -- General configuration ---------------------------------------------------
 
 extensions = [
-    "sphinx.ext.duration",
-    "sphinx.ext.doctest",
     "sphinx.ext.autodoc",
-    "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
+    'sphinx.ext.napoleon',
 ]
 
 intersphinx_mapping = {
-    "web3py": ("https://web3py.readthedocs.io/en/stable/", None),
+    "web3": ("https://web3py.readthedocs.io/en/latest/", None),
+    "hexbytes": ("https://hexbytes.readthedocs.io/en/latest/", None),
     "python": ("https://docs.python.org/3/", None),
 }
 
@@ -30,9 +29,11 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # -- Options for HTML output -------------------------------------------------
 
+# The name of the Pygments (syntax highlighting) style to use.
+pygments_style = 'sphinx'
+
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
 html_theme = "sphinx_rtd_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
