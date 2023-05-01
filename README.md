@@ -2,6 +2,12 @@
 
 <p align="center">🐣 web3 CTF tool based on web3.py</p>
 
+<p align="center">
+    <a href="https://cheb3.readthedocs.io/en/latest/index.html">
+        <img alt="Documentation" src="https://img.shields.io/readthedocs/cheb3.svg">
+    </a>
+</p>
+
 ## Install
 
 ```bash
