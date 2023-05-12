@@ -1,4 +1,7 @@
-<h1 align="center">cheb3</h1>
+<p style="display: flex; align-items: center; justify-content: center">
+    <img width="100" src="docs/_static/img/logo.png">
+    <img src="docs/_static/img/cheb3.png">
+</p>
 
 <p align="center">🐣 web3 CTF tool based on web3.py</p>
 
