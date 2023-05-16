@@ -61,8 +61,12 @@ class Contract:
         :param constructor_args: Constructor arguments.
 
         Keyword Args:
-            gas_price (int): Specify the gas price for the deployment.
-            gas_limit (int): Specify the maximum gas the deployment can use.
+            value (int): The amount to transfer, defaults to 0.
+            gas_price (int): Specifies the gas price for the deployment.
+            gas_limit (int): Specifies the maximum gas the deployment can use.
+            proxy (bool): A minimal proxy contract (ERC-1167) will be deployed
+                and connected to the logic contract if set to :const:`True`,
+                defaults to :const:`False`.
         """
         if not self.signer:
             raise AttributeError("The `signer` is missing.")
@@ -94,8 +98,31 @@ class Contract:
         receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash)
         if not receipt.status:
             raise Exception(f"Failed to deploy {type(self).__name__}.")
-        logger.info(f"Deployed {type(self).__name__} at {receipt.contractAddress}")
+        logger.info(
+            f"""The {"logic " if kwargs.get('proxy', False) else ""}{type(self).__name__} is deployed at {receipt.contractAddress}"""
+        )
         self.address = receipt.contractAddress
+
+        if kwargs.get("proxy", False):
+            proxy_bytecode = f"3d602d80600a3d3981f3363d3d373d3d3d363d73{self.address[2:].lower()}5af43d82803e903d91602b57fd5bf3"
+            tx = {
+                "from": self.signer.address,
+                "to": None,
+                "chainId": self.w3.eth.chain_id,
+                "nonce": self.w3.eth.get_transaction_count(self.signer.address),
+                "gasPrice": kwargs.get("gas_price", self.w3.eth.gas_price),
+                "data": proxy_bytecode,
+            }
+            tx["gas"] = kwargs.get("gas_limit", self.w3.eth.estimate_gas(tx))
+            tx = self.signer.sign_transaction(tx).rawTransaction
+            logger.debug(f"Deploying the proxy ...")
+            tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
+            receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash)
+            if not receipt.status:
+                raise Exception(f"Failed to deploy the proxy.")
+            logger.info(f"The proxy is deployed at {receipt.contractAddress}")
+            self.address = receipt.contractAddress
+
         self.instance = self.w3.eth.contract(self.address, abi=self.instance.abi)
         self._init_functions()
 
@@ -148,7 +175,9 @@ class Contract:
     def factory(cls, w3: Web3, contract_name: str = "") -> "Contract":
         contract = cast(
             Contract,
-            PropertyCheckingFactory(contract_name or cls.__name__, (cls,), {"w3": w3}),
+            PropertyCheckingFactory(
+                contract_name or cls.__name__.lower(), (cls,), {"w3": w3}
+            ),
         )
         return contract
 
