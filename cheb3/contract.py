@@ -115,11 +115,11 @@ class Contract:
             }
             tx["gas"] = kwargs.get("gas_limit", self.w3.eth.estimate_gas(tx))
             tx = self.signer.sign_transaction(tx).rawTransaction
-            logger.debug(f"Deploying the proxy ...")
+            logger.debug("Deploying the proxy ...")
             tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
             receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash)
             if not receipt.status:
-                raise Exception(f"Failed to deploy the proxy.")
+                raise Exception("Failed to deploy the proxy.")
             logger.info(f"The proxy is deployed at {receipt.contractAddress}")
             self.address = receipt.contractAddress
 
