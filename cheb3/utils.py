@@ -1,4 +1,5 @@
-from typing import List, Tuple, Dict, Union, Any
+from typing import List, Tuple, Dict, Union, Any, Iterable
+from hexbytes import HexBytes
 from itertools import accumulate
 
 from web3 import Web3
@@ -46,7 +47,7 @@ def compile_sol(
     :param contract_name: A target contract name or a list of target
         contract names, defaults to :const:`None`. If not given, it
         will return all contracts in the source file.
-    :type contract_name: str | list[str]
+    :type contract_name: str | List[str]
     :param solc_version: `solc` version to use, defaults to :const:`None`.
         If not given, the currently active version is used. If the specified
         version is not installed, it will be installed automatically.
@@ -58,7 +59,7 @@ def compile_sol(
 
     :return: A dict, mapping the contract name to a tuple of the ABI and
         bytecode.
-    :rtype: dict[str, tuple[dict, str]]
+    :rtype: Dict[str, Tuple[Dict, str]]
     """
 
     try:
@@ -75,9 +76,7 @@ def compile_sol(
     )
     contracts = dict()
     if contract_names is None:
-        contract_names = [
-            c.split(":")[1] for c in compiled.keys() if c.startswith("<stdin>:")
-        ]
+        contract_names = [c.split(":")[1] for c in compiled.keys() if c.startswith("<stdin>:")]
     if isinstance(contract_names, str):
         contract_names = [contract_names]
     for cn in contract_names:
@@ -88,6 +87,71 @@ def compile_sol(
             compiled[f"<stdin>:{cn}"]["bin"],
         )
     return contracts
+
+
+def decode_data(encoded_data: Union[HexBytes, HexStr], types: Union[str, Iterable[str]]) -> Union[Any, Tuple[Any]]:
+    r"""The same as `abi.decode` in Solidity.
+
+    Examples:
+
+        >>> # decode a single value
+        >>> decode_data(b'\xd0!\xb0\xc3\x07\xaf\x00\x9b?\xbe\x03\x99M\xb4\xfa\x9fy\x17 \x84'.rjust(32, b'\0'), 'address')
+        '0xd021b0c307af009b3fbe03994db4fa9f79172084'
+        >>> # decode multiple values
+        >>> decode_data('000000000000000000000000000000000000000000000000058d15e17628\
+        00000000000000000000000000000000000000000000000000000000000000000064000000000\
+        00000000000000000000000000000000000000000000000645f7142',\
+        ('uint112', 'uint112', 'uint32'))
+        (400000000000000000, 100, 1683976514)
+
+
+    :param encoded_data: The encoded data.
+    :type encoded_data: Union[~hexbytes.main.HexBytes, HexStr]
+    :param types: A list or tuple of string representations of
+        the ABI types that will be used for decoding.
+    :type types: Iterable[str]
+
+    :return: The decoded data.
+    :rtype: Union[Any, Tuple[Any]]
+    """
+
+    def dfs(decoded_data: Tuple[Any], types: Union[str, Iterable[str]]) -> Tuple[Any]:
+        if isinstance(types, str):
+            types = [types]
+
+        decoded_data = list(decoded_data)
+        for i in range(len(types)):
+            if "(" != types[i][0]:  # not struct
+                if types[i].startswith("address"):
+                    if isinstance(decoded_data[i], str):
+                        decoded_data[i] = Web3.to_checksum_address(decoded_data[i])
+                    else:
+                        decoded_data[i] = tuple([Web3.to_checksum_address(addr) for addr in decoded_data[i]])
+                continue
+
+            if (square_left := types[i].rfind("[")) != -1:  # struct array
+                decoded_data[i] = list(decoded_data[i])
+                base = types[i][:square_left][1:-1]
+                levels = accumulate((p == "(") - (s == ")") for p, s in zip(f" {base}", f"{base} "))
+                _types = "".join([c, "\n"][c == "," and lv == 0] for c, lv in zip(base, levels)).split("\n")
+                for j in range(len(decoded_data[i])):
+                    decoded_data[i][j] = dfs(decoded_data[i][j], _types)
+                decoded_data[i] = tuple(decoded_data[i])
+            else:
+                type_str = types[i][1:-1]
+                levels = accumulate((p == "(") - (s == ")") for p, s in zip(f" {type_str}", f"{type_str} "))
+                _types = "".join([c, "\n"][c == "," and lv == 0] for c, lv in zip(type_str, levels)).split("\n")
+                decoded_data[i] = dfs(decoded_data[i], _types)
+
+        return tuple(decoded_data)
+
+    if isinstance(encoded_data, str):
+        encoded_data = HexBytes(encoded_data)
+
+    decoded = dfs(eth_abi.decode(types, encoded_data), types)
+    if len(decoded) == 1:
+        return decoded[0]
+    return decoded
 
 
 def encode_with_signature(signature: str, *args) -> HexStr:
@@ -110,12 +174,8 @@ def encode_with_signature(signature: str, *args) -> HexStr:
     def dfs(type_str: str) -> Tuple[str, Any]:
         if not type_str:
             return ("", [])
-        levels = accumulate(
-            (p == "(") - (s == ")") for p, s in zip(f" {type_str}", f"{type_str} ")
-        )
-        types = "".join(
-            [c, "\n"][c == "," and lv == 0] for c, lv in zip(type_str, levels)
-        ).split(
+        levels = accumulate((p == "(") - (s == ")") for p, s in zip(f" {type_str}", f"{type_str} "))
+        types = "".join([c, "\n"][c == "," and lv == 0] for c, lv in zip(type_str, levels)).split(
             "\n"
         )  # split by comma at level 0
         sig = ""
@@ -158,9 +218,7 @@ def calc_create_address(sender: HexStr, nonce: int) -> HexStr:
     :return: The address of the contract.
     :rtype: HexStr
     """
-    return Web3.to_checksum_address(
-        Web3.keccak(rlp.encode([Web3.to_bytes(hexstr=sender), nonce]))[12:].hex()
-    )
+    return Web3.to_checksum_address(Web3.keccak(rlp.encode([Web3.to_bytes(hexstr=sender), nonce]))[12:].hex())
 
 
 def calc_create2_address(sender: HexStr, salt: int, initcode: HexStr) -> HexStr:
