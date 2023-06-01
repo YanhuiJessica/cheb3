@@ -19,14 +19,11 @@ classifiers = [
 
   "License :: OSI Approved :: MIT License",
 
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python",
 ]
 
 [project.urls]
 "Homepage" = "https://github.com/YanhuiJessica/cheb3"
+"Documentation" = "https://cheb3.readthedocs.io/en/latest/"
 "Source" = "https://github.com/YanhuiJessica/cheb3"
 "Bug Reports" = "https://github.com/YanhuiJessica/cheb3/issues"
