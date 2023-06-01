@@ -1,12 +1,13 @@
 <p align="center" style="display: flex;">
-    <img width="100" src="docs/_static/img/logo.png">
-    <img src="docs/_static/img/cheb3.png">
+    <img width="100" src="https://github.com/YanhuiJessica/cheb3/blob/main/docs/_static/img/logo.png">
+    <img src="https://github.com/YanhuiJessica/cheb3/blob/main/docs/_static/img/cheb3.png">
 </p>
 
 <p align="center">🐣 web3 CTF tool based on web3.py</p>
 
 <p align="center">
     <a href="https://cheb3.readthedocs.io/en/latest/index.html">
+        <a href="https://pypi.python.org/pypi/cheb3"><img alt="PyPI" src="https://img.shields.io/pypi/v/cheb3.svg"></a>
         <img alt="Documentation" src="https://img.shields.io/readthedocs/cheb3.svg">
     </a>
 </p>
@@ -14,7 +15,7 @@
 ## Install
 
 ```bash
-pip3 install -U git+https://github.com/YanhuiJessica/cheb3.git#egg=cheb3
+pip3 install -U cheb3
 ```
 
 ## Quick Start
