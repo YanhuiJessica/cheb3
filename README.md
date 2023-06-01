@@ -1,6 +1,6 @@
 <p align="center" style="display: flex;">
-    <img width="100" src="https://github.com/YanhuiJessica/cheb3/blob/main/docs/_static/img/logo.png">
-    <img src="https://github.com/YanhuiJessica/cheb3/blob/main/docs/_static/img/cheb3.png">
+    <img width="100" src="https://raw.githubusercontent.com/YanhuiJessica/cheb3/main/docs/_static/img/logo.png">
+    <img src="https://raw.githubusercontent.com/YanhuiJessica/cheb3/main/docs/_static/img/cheb3.png">
 </p>
 
 <p align="center">🐣 web3 CTF tool based on web3.py</p>
