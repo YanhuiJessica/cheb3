@@ -1,5 +1,5 @@
-<p align="center" style="display: flex;">
-    <img src="https://raw.githubusercontent.com/YanhuiJessica/cheb3/main/docs/_static/img/cheb3.png">
+<p align="center">
+    <img width="200" src="https://raw.githubusercontent.com/YanhuiJessica/cheb3/main/docs/_static/img/cheb3.png">
 </p>
 
 <p align="center">🐣 web3 CTF tool based on web3.py</p>
