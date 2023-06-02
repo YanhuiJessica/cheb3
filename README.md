@@ -1,5 +1,4 @@
 <p align="center" style="display: flex;">
-    <img width="100" src="https://raw.githubusercontent.com/YanhuiJessica/cheb3/main/docs/_static/img/logo.png">
     <img src="https://raw.githubusercontent.com/YanhuiJessica/cheb3/main/docs/_static/img/cheb3.png">
 </p>
 
