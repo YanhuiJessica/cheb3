@@ -1,0 +1,22 @@
+name: Publish distributions to PyPI
+
+on: push
+
+jobs:
+  build-n-publish:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+      - name: Install build
+        run: python3 -m pip install -U build
+      - name: Build
+        run: python3 -m build --outdir dist/
+      - name: Publish
+        if: (github.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
