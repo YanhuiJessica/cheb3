@@ -61,7 +61,7 @@ class Contract:
         :param constructor_args: Constructor arguments.
 
         Keyword Args:
-            value (int): The amount to transfer, defaults to 0.
+            value (int): The amount to transfer, defaults to 0 (wei).
             gas_price (int): Specifies the gas price for the deployment.
             gas_limit (int): Specifies the maximum gas the deployment can use.
             proxy (bool): A minimal proxy contract (ERC-1167) will be deployed
@@ -72,9 +72,7 @@ class Contract:
             raise AttributeError("The `signer` is missing.")
 
         if self.address:
-            logger.info(
-                f"Contract {type(self).__name__} has already been deployed at {self.address}."
-            )
+            logger.info(f"Contract {type(self).__name__} has already been deployed at {self.address}.")
             return
 
         tx = self.signer.sign_transaction(
@@ -84,9 +82,7 @@ class Contract:
                     "nonce": self.w3.eth.get_transaction_count(self.signer.address),
                     "gas": kwargs.get(
                         "gas_limit",
-                        self.instance.constructor(*constructor_args).estimate_gas(
-                            {"from": self.signer.address}
-                        ),
+                        self.instance.constructor(*constructor_args).estimate_gas({"from": self.signer.address}),
                     ),
                     "gasPrice": kwargs.get("gas_price", self.w3.eth.gas_price),
                     "value": kwargs.get("value", 0),
@@ -127,9 +123,7 @@ class Contract:
         self._init_functions()
 
     @staticmethod
-    def get_fallback_function(
-        abi: ABI, w3: Web3, signer: eth_account.Account, address: str
-    ):
+    def get_fallback_function(abi: ABI, w3: Web3, signer: eth_account.Account, address: str):
         if abi and fallback_func_abi_exists(abi):
             return ContractFunctionWrapper.factory(
                 "fallback",
@@ -143,9 +137,7 @@ class Contract:
             return cast(ContractFunctionWrapper, NonExistentFallbackFunction())
 
     @staticmethod
-    def get_receive_function(
-        abi: ABI, w3: Web3, signer: eth_account.Account, address: str
-    ):
+    def get_receive_function(abi: ABI, w3: Web3, signer: eth_account.Account, address: str):
         if abi and receive_func_abi_exists(abi):
             return ContractFunctionWrapper.factory(
                 "receive",
@@ -159,25 +151,17 @@ class Contract:
             return cast(ContractFunctionWrapper, NonExistentReceiveFunction())
 
     def _init_functions(self) -> None:
-        self.functions = ContractFunctionsWrapper(
-            self.signer, self.instance.abi, self.w3, self.address
-        )
+        self.functions = ContractFunctionsWrapper(self.signer, self.instance.abi, self.w3, self.address)
         self.caller = ContractCaller(self.instance.abi, self.w3, self.address)
 
-        self.fallback = self.get_fallback_function(
-            self.instance.abi, self.w3, self.signer, self.address
-        )
-        self.receive = self.get_receive_function(
-            self.instance.abi, self.w3, self.signer, self.address
-        )
+        self.fallback = self.get_fallback_function(self.instance.abi, self.w3, self.signer, self.address)
+        self.receive = self.get_receive_function(self.instance.abi, self.w3, self.signer, self.address)
 
     @classmethod
     def factory(cls, w3: Web3, contract_name: str = "") -> "Contract":
         contract = cast(
             Contract,
-            PropertyCheckingFactory(
-                contract_name or cls.__name__.lower(), (cls,), {"w3": w3}
-            ),
+            PropertyCheckingFactory(contract_name or cls.__name__.lower(), (cls,), {"w3": w3}),
         )
         return contract
 
@@ -233,20 +217,18 @@ class ContractFunctionWrapper(ContractFunction):
         if not self.signer:
             raise AttributeError("The `signer` is missing.")
 
-        tx = {
-            "chainId": self.w3.eth.chain_id,
-            "nonce": self.w3.eth.get_transaction_count(self.signer.address),
-            "gasPrice": kwargs.get("gas_price", self.w3.eth.gas_price),
-            "value": kwargs.get("value", 0),
-        }
-        tx["gas"] = kwargs.get("gas_limit", self.w3.eth.estimate_gas(tx))
-        tx = self.signer.sign_transaction(self.build_transaction(tx)).rawTransaction
-        tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
-        func_name = (
-            self.function_identifier
-            if isinstance(self.function_identifier, str)
-            else self.function_identifier.__name__
+        tx = self.build_transaction(
+            {
+                "chainId": self.w3.eth.chain_id,
+                "nonce": self.w3.eth.get_transaction_count(self.signer.address),
+                "gasPrice": kwargs.get("gas_price", self.w3.eth.gas_price),
+                "value": kwargs.get("value", 0),
+            }
         )
+        tx["gas"] = kwargs.get("gas_limit", self.w3.eth.estimate_gas(tx))
+        tx = self.signer.sign_transaction(tx).rawTransaction
+        tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
+        func_name = self.function_identifier if isinstance(self.function_identifier, str) else self.function_identifier.__name__
         logger.info(f"({self.address}).{func_name} transaction hash: {tx_hash}")
         receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash)
         if not receipt.status:

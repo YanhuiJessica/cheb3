@@ -76,7 +76,7 @@ class Account:
 
         :param to: The address of the receiver.
         :type to: HexStr
-        :param value: The amount to transfer, defaults to 0.
+        :param value: The amount to transfer, defaults to 0 (wei).
         :type value: int
         :param data: The transaction data, defaults to `0x`.
         :type data: HexStr
