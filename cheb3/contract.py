@@ -84,7 +84,7 @@ class Contract:
                     "gas": kwargs.get(
                         "gas_limit",
                         self.instance.constructor(*constructor_args).estimate_gas({"from": self.signer.address}),
-                    ),
+                    ) + GAS_BUFFER,
                     "gasPrice": kwargs.get("gas_price", self.w3.eth.gas_price),
                     "value": kwargs.get("value", 0),
                 }
@@ -110,7 +110,7 @@ class Contract:
                 "gasPrice": kwargs.get("gas_price", self.w3.eth.gas_price),
                 "data": proxy_bytecode,
             }
-            tx["gas"] = kwargs.get("gas_limit", self.w3.eth.estimate_gas(tx))
+            tx["gas"] = kwargs.get("gas_limit", self.w3.eth.estimate_gas(tx) + GAS_BUFFER)
             tx = self.signer.sign_transaction(tx).rawTransaction
             logger.debug("Deploying the proxy ...")
             tx_hash = self.w3.eth.send_raw_transaction(tx).hex()

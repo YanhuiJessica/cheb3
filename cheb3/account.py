@@ -9,6 +9,8 @@ from web3.types import TxReceipt
 from eth_typing import HexStr
 import eth_account
 
+from cheb3.constants import GAS_BUFFER
+
 from loguru import logger
 
 
@@ -29,9 +31,7 @@ class Account:
             )
 
         if private_key is None:
-            self.eth_acct = eth_account.Account.create(
-                "".join(random.choices(string.ascii_letters, k=3))
-            )
+            self.eth_acct = eth_account.Account.create("".join(random.choices(string.ascii_letters, k=3)))
         else:
             self.eth_acct = eth_account.Account.from_key(private_key)
 
@@ -40,9 +40,7 @@ class Account:
 
     @classmethod
     def factory(cls, w3: Web3) -> "Account":
-        eth_acct = cast(
-            Account, PropertyCheckingFactory(cls.__name__, (cls,), {"w3": w3})
-        )
+        eth_acct = cast(Account, PropertyCheckingFactory(cls.__name__, (cls,), {"w3": w3}))
         return eth_acct
 
     def get_balance(self) -> int:
@@ -69,9 +67,7 @@ class Account:
             }
         )
 
-    def send_transaction(
-        self, to: HexStr, value: int = 0, data: HexStr = "0x", **kwargs
-    ) -> TxReceipt:
+    def send_transaction(self, to: HexStr, value: int = 0, data: HexStr = "0x", **kwargs) -> TxReceipt:
         """Transfer ETH or interact with a smart contract.
 
         :param to: The address of the receiver.
@@ -97,7 +93,7 @@ class Account:
             "gasPrice": kwargs.get("gas_price", self.w3.eth.gas_price),
             "data": data,
         }
-        tx["gas"] = kwargs.get("gas_limit", self.w3.eth.estimate_gas(tx))
+        tx["gas"] = kwargs.get("gas_limit", self.w3.eth.estimate_gas(tx) + GAS_BUFFER)
         tx = self.eth_acct.sign_transaction(tx).rawTransaction
         tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
         logger.info(f"Transaction to {to}: {tx_hash}")
