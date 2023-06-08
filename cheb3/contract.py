@@ -23,6 +23,7 @@ from eth_typing import ChecksumAddress
 import eth_account
 
 from cheb3.account import Account
+from cheb3.constants import GAS_BUFFER
 
 from loguru import logger
 
@@ -222,7 +223,7 @@ class ContractFunctionWrapper(ContractFunction):
             "nonce": self.w3.eth.get_transaction_count(self.signer.address),
             "gasPrice": kwargs.get("gas_price", self.w3.eth.gas_price),
             "value": kwargs.get("value", 0),
-            "gas": kwargs.get("gas_limit", self.estimate_gas()),
+            "gas": kwargs.get("gas_limit", self.estimate_gas() + GAS_BUFFER),
         }
         tx = self.signer.sign_transaction(self.build_transaction(tx)).rawTransaction
         tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
