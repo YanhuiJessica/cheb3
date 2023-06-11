@@ -85,8 +85,7 @@ class Contract:
                     "gas": kwargs.get(
                         "gas_limit",
                         self.instance.constructor(*constructor_args).estimate_gas({"from": self.signer.address}),
-                    )
-                    + GAS_BUFFER,
+                    ) + GAS_BUFFER,
                     "gasPrice": kwargs.get("gas_price", self.w3.eth.gas_price),
                     "value": kwargs.get("value", 0),
                 }
