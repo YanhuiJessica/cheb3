@@ -218,12 +218,16 @@ class ContractFunctionWrapper(ContractFunction):
         if not self.signer:
             raise AttributeError("The `signer` is missing.")
 
+        try:
+            estimate_gas = self.estimate_gas() + GAS_BUFFER
+        except:
+            estimate_gas = 3000000
         tx = {
             "chainId": self.w3.eth.chain_id,
             "nonce": self.w3.eth.get_transaction_count(self.signer.address),
             "gasPrice": kwargs.get("gas_price", self.w3.eth.gas_price),
             "value": kwargs.get("value", 0),
-            "gas": kwargs.get("gas_limit", self.estimate_gas() + GAS_BUFFER),
+            "gas": kwargs.get("gas_limit", estimate_gas),
         }
         tx = self.signer.sign_transaction(self.build_transaction(tx)).rawTransaction
         tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
