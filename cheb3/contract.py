@@ -18,6 +18,7 @@ from web3._utils.abi import (
     receive_func_abi_exists,
 )
 from web3._utils.function_identifiers import FallbackFn, ReceiveFn
+from web3.exceptions import ContractLogicError
 from web3.types import ABI, TxReceipt
 from eth_typing import ChecksumAddress
 import eth_account
@@ -84,7 +85,8 @@ class Contract:
                     "gas": kwargs.get(
                         "gas_limit",
                         self.instance.constructor(*constructor_args).estimate_gas({"from": self.signer.address}),
-                    ) + GAS_BUFFER,
+                    )
+                    + GAS_BUFFER,
                     "gasPrice": kwargs.get("gas_price", self.w3.eth.gas_price),
                     "value": kwargs.get("value", 0),
                 }
@@ -220,7 +222,7 @@ class ContractFunctionWrapper(ContractFunction):
 
         try:
             estimate_gas = self.estimate_gas() + GAS_BUFFER
-        except:
+        except ContractLogicError:
             estimate_gas = 3000000
         tx = {
             "chainId": self.w3.eth.chain_id,
