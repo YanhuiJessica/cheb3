@@ -89,13 +89,13 @@ def compile_sol(
     return contracts
 
 
-def decode_data(encoded_data: Union[HexBytes, HexStr], types: Union[str, Iterable[str]]) -> Union[Any, Tuple[Any]]:
+def decode_data(encoded_data: Union[HexBytes, HexStr], types: Iterable[str]) -> Union[Any, Tuple[Any]]:
     r"""The same as `abi.decode` in Solidity.
 
     Examples:
 
         >>> # decode a single value
-        >>> decode_data(b'\xd0!\xb0\xc3\x07\xaf\x00\x9b?\xbe\x03\x99M\xb4\xfa\x9fy\x17 \x84'.rjust(32, b'\0'), 'address')
+        >>> decode_data(b'\xd0!\xb0\xc3\x07\xaf\x00\x9b?\xbe\x03\x99M\xb4\xfa\x9fy\x17 \x84'.rjust(32, b'\0'), ['address'])
         '0xd021b0c307af009b3fbe03994db4fa9f79172084'
         >>> # decode multiple values
         >>> decode_data('000000000000000000000000000000000000000000000000058d15e17628\
