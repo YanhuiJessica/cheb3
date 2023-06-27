@@ -31,8 +31,8 @@ Documentation
 =============
 
 - Quick Start
-    - Making Connections
-    - Interaction Basis
+    - `Making Connections <https://cheb3.readthedocs.io/en/latest/connection_basis.html>`_
+    - `Interaction Basis <https://cheb3.readthedocs.io/en/latest/interaction_basis.html>`_
 - API Reference
     - `Connection <https://cheb3.readthedocs.io/en/latest/connection.html>`_
     - `Account <https://cheb3.readthedocs.io/en/latest/account.html>`_
