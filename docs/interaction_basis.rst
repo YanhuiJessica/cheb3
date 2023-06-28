@@ -115,12 +115,13 @@ If the proxy parameter is set to :const:`True`, a minimal proxy contract will be
     1970-01-01 xx:xx:xx.xxx | DEBUG    | cheb3.contract:deploy:116 - Deploying the proxy ...
     1970-01-01 xx:xx:xx.xxx | INFO     | cheb3.contract:deploy:121 - The proxy is deployed at 0x8F1d8d499709f4BA4DC28F60068398335435B07C
 
-Another way to deploy a contract with only bytecode is to use :meth:`cheb3.Account.send_transaction`:
+Another way to deploy a contract with only bytecode is to use :meth:`~cheb3.account.Account.send_transaction`:
 
 .. code-block:: python
 
+    >>> example_bytecode = "0x600a600c600039600a6000f3602a60005260206000f3"
     >>> contract_addr = account.send_transaction(
         None,   # to zero address
-        data=bytecode
+        data=example_bytecode
     ).contractAddress
     1970-01-01 xx:xx:xx.xxx | INFO     | cheb3.account:send_transaction:99 - Transaction to None: 0x30b022a47d60dc17be88d5d5da7e4ca0985cbe2abb722cd24bb1a6a4d6931f39
