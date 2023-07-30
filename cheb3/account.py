@@ -59,6 +59,8 @@ class Account:
         :rtype: ~hexbytes.main.HexBytes
         """
 
+        to = Web3.to_checksum_address(to)
+
         return self.w3.eth.call(
             {
                 "to": to,
@@ -83,6 +85,8 @@ class Account:
 
         :rtype: TxReceipt
         """
+
+        to = Web3.to_checksum_address(to)
 
         tx = {
             "from": self.address,
