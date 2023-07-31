@@ -108,7 +108,7 @@ pycryptodome==3.18.0
     # via
     #   eth-hash
     #   eth-keyfile
-pygments==2.14.0
+pygments==2.15.0
     # via sphinx
 pyrsistent==0.19.3
     # via jsonschema
