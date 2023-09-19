@@ -13,6 +13,8 @@ jobs:
           python-version: "3.x"
       - name: Install build
         run: python3 -m pip install -U build
+      - name: Replace Raw
+        run: python3 -c "lines = open('README.rst', 'r').readlines(); header = open('PYPIHEADER.rst', 'r').readlines(); open('README.rst', 'w').writelines(header + ['\n'] + lines[14:])"
       - name: Build
         run: python3 -m build --outdir dist/
       - name: Publish
