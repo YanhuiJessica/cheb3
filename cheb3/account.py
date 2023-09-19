@@ -1,4 +1,4 @@
-from typing import cast
+from typing import cast, Union
 from hexbytes import HexBytes
 import random
 import string
@@ -69,11 +69,11 @@ class Account:
             }
         )
 
-    def send_transaction(self, to: HexStr, value: int = 0, data: HexStr = "0x", **kwargs) -> TxReceipt:
+    def send_transaction(self, to: Union[HexStr, None], value: int = 0, data: HexStr = "0x", **kwargs) -> TxReceipt:
         """Transfer ETH or interact with a smart contract.
 
         :param to: The address of the receiver.
-        :type to: HexStr
+        :type to: Union[HexStr, None]
         :param value: The amount to transfer, defaults to 0 (wei).
         :type value: int
         :param data: The transaction data, defaults to `0x`.
@@ -86,7 +86,8 @@ class Account:
         :rtype: TxReceipt
         """
 
-        to = Web3.to_checksum_address(to)
+        if to:
+            to = Web3.to_checksum_address(to)
 
         tx = {
             "from": self.address,
