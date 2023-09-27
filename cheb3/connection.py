@@ -85,7 +85,7 @@ class Connection:
         return self.w3.eth.get_storage_at(address, slot)
 
     def get_code(self, address: str) -> HexBytes:
-        """Returns the code at the given address.
+        """Returns the code at the given account.
 
         :param address: The address of the account.
         :type address: str
