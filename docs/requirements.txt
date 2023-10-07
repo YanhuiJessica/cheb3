@@ -150,7 +150,7 @@ sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
 toolz==0.12.0
     # via cytoolz
-urllib3==1.26.15
+urllib3==1.26.17
     # via requests
 web3==6.4.0
     # via cheb3
