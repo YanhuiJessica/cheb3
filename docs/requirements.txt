@@ -10,37 +10,38 @@ aiosignal==1.3.1
     # via aiohttp
 alabaster==0.7.13
     # via sphinx
-async-timeout==4.0.2
+async-timeout==4.0.3
     # via aiohttp
 attrs==23.1.0
     # via
     #   aiohttp
     #   jsonschema
-babel==2.12.1
+    #   referencing
+babel==2.13.0
     # via sphinx
-bitarray==2.7.4
+bitarray==2.8.2
     # via eth-account
 certifi==2023.7.22
     # via requests
-charset-normalizer==3.1.0
+charset-normalizer==3.3.0
     # via
     #   aiohttp
     #   requests
-cheb3==0.7.0
+cheb3==0.7.7
     # via -r requirements.in
-cytoolz==0.12.1
+cytoolz==0.12.2
     # via eth-utils
 docutils==0.18.1
     # via
     #   sphinx
     #   sphinx-rtd-theme
-eth-abi==4.0.0
+eth-abi==4.2.1
     # via
     #   eth-account
     #   web3
-eth-account==0.8.0
+eth-account==0.9.0
     # via web3
-eth-hash[pycryptodome]==0.5.1
+eth-hash[pycryptodome]==0.5.2
     # via
     #   eth-utils
     #   web3
@@ -52,13 +53,13 @@ eth-keys==0.4.0
     #   eth-keyfile
 eth-rlp==0.3.0
     # via eth-account
-eth-typing==3.3.0
+eth-typing==3.5.0
     # via
     #   eth-abi
     #   eth-keys
     #   eth-utils
     #   web3
-eth-utils==2.1.0
+eth-utils==2.2.1
     # via
     #   eth-abi
     #   eth-account
@@ -67,11 +68,11 @@ eth-utils==2.1.0
     #   eth-rlp
     #   rlp
     #   web3
-frozenlist==1.3.3
+frozenlist==1.4.0
     # via
     #   aiohttp
     #   aiosignal
-hexbytes==0.3.0
+hexbytes==0.3.1
     # via
     #   eth-account
     #   eth-rlp
@@ -84,35 +85,41 @@ imagesize==1.4.1
     # via sphinx
 jinja2==3.1.2
     # via sphinx
-jsonschema==4.17.3
+jsonschema==4.19.1
     # via web3
-loguru==0.7.0
+jsonschema-specifications==2023.7.1
+    # via jsonschema
+loguru==0.7.2
     # via cheb3
 lru-dict==1.2.0
     # via web3
-markupsafe==2.1.2
+markupsafe==2.1.3
     # via jinja2
 multidict==6.0.4
     # via
     #   aiohttp
     #   yarl
-packaging==23.0
+packaging==23.2
     # via sphinx
 parsimonious==0.9.0
     # via eth-abi
-protobuf==4.23.2
+protobuf==4.24.4
     # via web3
 py-solc-x==1.1.1
     # via cheb3
-pycryptodome==3.18.0
+pycryptodome==3.19.0
     # via
     #   eth-hash
     #   eth-keyfile
-pygments==2.15.0
+pygments==2.16.1
     # via sphinx
-pyrsistent==0.19.3
-    # via jsonschema
-regex==2023.5.5
+pyunormalize==15.0.0
+    # via web3
+referencing==0.30.2
+    # via
+    #   jsonschema
+    #   jsonschema-specifications
+regex==2023.10.3
     # via parsimonious
 requests==2.31.0
     # via
@@ -123,6 +130,10 @@ rlp==3.0.0
     # via
     #   eth-account
     #   eth-rlp
+rpds-py==0.10.4
+    # via
+    #   jsonschema
+    #   referencing
 semantic-version==2.10.0
     # via py-solc-x
 snowballstemmer==2.2.0
@@ -131,28 +142,37 @@ sphinx==5.3.0
     # via
     #   -r requirements.in
     #   sphinx-rtd-theme
+    #   sphinxcontrib-applehelp
+    #   sphinxcontrib-devhelp
+    #   sphinxcontrib-htmlhelp
     #   sphinxcontrib-jquery
-sphinx-rtd-theme==1.2.0
+    #   sphinxcontrib-qthelp
+    #   sphinxcontrib-serializinghtml
+sphinx-rtd-theme==1.3.0
     # via -r requirements.in
-sphinxcontrib-applehelp==1.0.4
+sphinxcontrib-applehelp==1.0.7
     # via sphinx
-sphinxcontrib-devhelp==1.0.2
+sphinxcontrib-devhelp==1.0.5
     # via sphinx
-sphinxcontrib-htmlhelp==2.0.1
+sphinxcontrib-htmlhelp==2.0.4
     # via sphinx
 sphinxcontrib-jquery==4.1
     # via sphinx-rtd-theme
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
-sphinxcontrib-qthelp==1.0.3
+sphinxcontrib-qthelp==1.0.6
     # via sphinx
-sphinxcontrib-serializinghtml==1.1.5
+sphinxcontrib-serializinghtml==1.1.9
     # via sphinx
 toolz==0.12.0
     # via cytoolz
-urllib3==1.26.15
+typing-extensions==4.8.0
+    # via
+    #   eth-typing
+    #   web3
+urllib3==2.0.6
     # via requests
-web3==6.4.0
+web3==6.10.0
     # via cheb3
 websockets==11.0.3
     # via web3
