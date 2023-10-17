@@ -27,7 +27,7 @@ charset-normalizer==3.3.0
     # via
     #   aiohttp
     #   requests
-cheb3==0.7.7
+cheb3==0.7.8
     # via -r requirements.in
 cytoolz==0.12.2
     # via eth-utils
