@@ -1,5 +1,6 @@
 from typing import Any
 from hexbytes import HexBytes
+from requests.exceptions import ConnectionError
 
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
@@ -19,8 +20,12 @@ class Connection:
         self.w3 = Web3(Web3.HTTPProvider(endpoint_uri))
         self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
-        if not self.w3.is_connected():
-            raise Exception(f"Could not connect to {endpoint_uri}.")
+        try:
+            self.w3.is_connected(show_traceback=True)
+        except Exception as e:
+            if isinstance(e, ConnectionError):
+                raise Exception(f"Could not connect to {endpoint_uri}.")
+            # HTTPError('400 Client Error: Bad Request for url'): connected but is_connected() returns False
 
     def account(self, private_key: str = None) -> Account:
         """Creates an account associated with this connection.
