@@ -82,6 +82,8 @@ class Account:
         Keyword Args:
             gas_price (int): Specify the gas price for the transaction.
             gas_limit (int): Specify the maximum gas the transaction can use.
+            access_list (List[Dict]): Specify a list of addresses and storage
+                keys that the transaction plans to access (EIP-2930).
 
         :rtype: TxReceipt
         """
@@ -98,6 +100,8 @@ class Account:
             "gasPrice": kwargs.get("gas_price", self.w3.eth.gas_price),
             "data": data,
         }
+        if kwargs.get("access_list"):
+            tx["accessList"] = kwargs["access_list"]
         tx["gas"] = kwargs.get("gas_limit", self.w3.eth.estimate_gas(tx) + GAS_BUFFER)
         tx = self.eth_acct.sign_transaction(tx).rawTransaction
         tx_hash = self.w3.eth.send_raw_transaction(tx).hex()

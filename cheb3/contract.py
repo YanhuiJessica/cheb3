@@ -69,6 +69,9 @@ class Contract:
             proxy (bool): A minimal proxy contract (ERC-1167) will be deployed
                 and connected to the logic contract if set to :const:`True`,
                 defaults to :const:`False`.
+            access_list (List[Dict]): Specify a list of addresses and storage
+                keys that the transaction plans to access (EIP-2930). It will only
+                be used in logic contract deployment if `proxy` is :const:`True`.
         """
         if not self.signer:
             raise AttributeError("The `signer` is missing.")
@@ -88,6 +91,7 @@ class Contract:
                     ) + GAS_BUFFER,
                     "gasPrice": kwargs.get("gas_price", self.w3.eth.gas_price),
                     "value": kwargs.get("value", 0),
+                    "accessList": kwargs.get("access_list", []),
                 }
             )
         ).rawTransaction
@@ -230,6 +234,8 @@ class ContractFunctionWrapper(ContractFunction):
             "value": kwargs.get("value", 0),
             "gas": kwargs.get("gas_limit", estimate_gas),
         }
+        if kwargs.get("access_list"):
+            tx["accessList"] = kwargs["access_list"]
         tx = self.signer.sign_transaction(self.build_transaction(tx)).rawTransaction
         tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
         func_name = self.function_identifier if isinstance(self.function_identifier, str) else self.function_identifier.__name__
