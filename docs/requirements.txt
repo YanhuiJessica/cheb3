@@ -17,17 +17,17 @@ attrs==23.1.0
     #   aiohttp
     #   jsonschema
     #   referencing
-babel==2.13.0
+babel==2.13.1
     # via sphinx
 bitarray==2.8.2
     # via eth-account
 certifi==2023.7.22
     # via requests
-charset-normalizer==3.3.0
+charset-normalizer==3.3.1
     # via
     #   aiohttp
     #   requests
-cheb3==0.7.8
+cheb3==0.8.0
     # via -r requirements.in
 cytoolz==0.12.2
     # via eth-utils
@@ -53,13 +53,13 @@ eth-keys==0.4.0
     #   eth-keyfile
 eth-rlp==0.3.0
     # via eth-account
-eth-typing==3.5.0
+eth-typing==3.5.1
     # via
     #   eth-abi
     #   eth-keys
     #   eth-utils
     #   web3
-eth-utils==2.2.2
+eth-utils==2.3.0
     # via
     #   eth-abi
     #   eth-account
@@ -172,9 +172,9 @@ typing-extensions==4.8.0
     #   web3
 urllib3==2.0.7
     # via requests
-web3==6.11.0
+web3==6.11.1
     # via cheb3
-websockets==11.0.3
+websockets==12.0
     # via web3
 yarl==1.9.2
     # via aiohttp
