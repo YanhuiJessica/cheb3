@@ -47,7 +47,7 @@ class Account:
         """Returns the balance of the account instance."""
         return self.w3.eth.get_balance(self.eth_acct.address)
 
-    def call(self, to: HexStr, data: HexStr = "0x") -> HexBytes:
+    def call(self, to: HexStr, data: HexStr = "0x", **kwargs) -> HexBytes:
         """Interact with a smart contract without creating a new
         transaction on the blockchain.
 
@@ -55,6 +55,10 @@ class Account:
         :type to: HexStr
         :param data: The transaction data, defaults to `0x`.
         :type data: HexStr
+
+        Keyword Args:
+            state_override (dict): Specify the state override set.
+                View `Geth documentation <https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-eth#eth-call>`_ for more details.
 
         :rtype: ~hexbytes.main.HexBytes
         """
@@ -66,7 +70,8 @@ class Account:
                 "to": to,
                 "from": self.address,
                 "data": data,
-            }
+            },
+            state_override=kwargs.get("state_override", None),
         )
 
     def send_transaction(self, to: Union[HexStr, None], value: int = 0, data: HexStr = "0x", **kwargs) -> TxReceipt:
