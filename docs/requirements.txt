@@ -106,7 +106,7 @@ protobuf==4.24.4
     # via web3
 py-solc-x==1.1.1
     # via cheb3
-pycryptodome==3.19.0
+pycryptodome==3.19.1
     # via
     #   eth-hash
     #   eth-keyfile
