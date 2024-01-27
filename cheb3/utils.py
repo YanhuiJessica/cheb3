@@ -1,3 +1,5 @@
+import os
+import json
 from typing import List, Tuple, Dict, Union, Any, Iterable
 from hexbytes import HexBytes
 from itertools import accumulate
@@ -13,6 +15,28 @@ from solcx.install import install_solc
 from solcx.exceptions import SolcNotInstalled
 
 from cheb3.constants import TYPE_ALIAS
+
+
+def load_compiled(contract_file: str, contract_name: str = None, base_path: str = "out/") -> Tuple[Dict, str]:
+    """Loads compiled contracts from the project.
+
+    :param contract_file: The name of the contract file.
+    :type contract_file: str
+    :param contract_name: Specifies the contract to be loaded. Defaults
+        to the contract filename without suffix.
+    :type contract_name: str
+    :param base_path: Use the given path as the root of the source tree
+        to load the compiled output. Defaults to "out/".
+    :type base_path: str
+
+    :return: ABI and bytecode of the required contract.
+    :rtype: Tuple[Dict, str]
+    """
+
+    contract_name = contract_name or os.path.splitext(contract_file)[0]
+    with open(os.path.join(base_path, contract_file, f"{contract_name}.json"), "r") as f:
+        compiled = json.load(f)
+        return (compiled["abi"], compiled["bytecode"]["object"])
 
 
 def compile_file(
@@ -193,7 +217,7 @@ def encode_with_signature(signature: str, *args) -> HexStr:
             sig += f"{types[i]},"
         return (sig[:-1], types)
 
-    ret = dfs(signature[signature.find("(") + 1: -1])
+    ret = dfs(signature[signature.find("(") + 1 : -1])
     signature = signature[: signature.find("(") + 1] + ret[0] + ")"
     types = ret[1]
     if len(types) != len(args):
