@@ -217,7 +217,7 @@ def encode_with_signature(signature: str, *args) -> HexStr:
             sig += f"{types[i]},"
         return (sig[:-1], types)
 
-    ret = dfs(signature[signature.find("(") + 1 : -1])
+    ret = dfs(signature[signature.find("(") + 1: -1])
     signature = signature[: signature.find("(") + 1] + ret[0] + ")"
     types = ret[1]
     if len(types) != len(args):
