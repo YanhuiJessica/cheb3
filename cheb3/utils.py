@@ -221,7 +221,7 @@ def encode_with_signature(signature: str, *args) -> HexStr:
     signature = signature[: signature.find("(") + 1] + ret[0] + ")"
     types = ret[1]
     if len(types) != len(args):
-        raise MismatchedABI("Thypee supplied parameters do not match the signatrue.")
+        raise MismatchedABI("Supplied parameters do not match the signature.")
 
     selector = Web3.solidity_keccak(["string"], [signature])[:4]
 
