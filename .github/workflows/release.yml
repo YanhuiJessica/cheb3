@@ -22,3 +22,21 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
+  update-docs-requirements:
+    name: Update docs requirements
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Update requirements.txt
+        if: startsWith(github.ref, 'refs/tags')
+        run: cd docs/ && pip-compile requirements.in > requirements.txt
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Docs requirements automatic updates
+          file_pattern: '*.txt'
+          skip_dirty_check: false
