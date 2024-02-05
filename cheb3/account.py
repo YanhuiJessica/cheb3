@@ -107,7 +107,11 @@ class Account:
         }
         if kwargs.get("access_list"):
             tx["accessList"] = kwargs["access_list"]
-        tx["gas"] = kwargs.get("gas_limit", self.w3.eth.estimate_gas(tx) + GAS_BUFFER)
+        try:
+            estimate_gas = self.w3.eth.estimate_gas(tx) + GAS_BUFFER
+        except:
+            estimate_gas = 3000000
+        tx["gas"] = kwargs.get("gas_limit", estimate_gas)
         tx = self.eth_acct.sign_transaction(tx).rawTransaction
         tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
         logger.info(f"Transaction to {to}: {tx_hash}")
