@@ -109,7 +109,7 @@ class Account:
             tx["accessList"] = kwargs["access_list"]
         try:
             estimate_gas = self.w3.eth.estimate_gas(tx) + GAS_BUFFER
-        except:
+        except Exception:
             estimate_gas = 3000000
         tx["gas"] = kwargs.get("gas_limit", estimate_gas)
         tx = self.eth_acct.sign_transaction(tx).rawTransaction

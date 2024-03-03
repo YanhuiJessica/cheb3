@@ -225,7 +225,7 @@ class ContractFunctionWrapper(ContractFunction):
 
         try:
             estimate_gas = self.estimate_gas() + GAS_BUFFER
-        except:
+        except Exception:
             estimate_gas = 3000000
         tx = {
             "chainId": self.w3.eth.chain_id,
