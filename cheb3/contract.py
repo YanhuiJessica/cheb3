@@ -240,6 +240,8 @@ class ContractFunctionWrapper(ContractFunction):
         tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
         func_name = self.function_identifier if isinstance(self.function_identifier, str) else self.function_identifier.__name__
         logger.info(f"({self.address}).{func_name} transaction hash: {tx_hash}")
+        if not kwargs.get("wait_for_receipt", True):
+            return tx_hash
         receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash)
         if not receipt.status:
             raise Exception(f"Transact to ({self.address}).{func_name} errored.")

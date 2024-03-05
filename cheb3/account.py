@@ -74,7 +74,9 @@ class Account:
             state_override=kwargs.get("state_override", None),
         )
 
-    def send_transaction(self, to: Union[HexStr, None], value: int = 0, data: HexStr = "0x", **kwargs) -> TxReceipt:
+    def send_transaction(
+        self, to: Union[HexStr, None], value: int = 0, data: HexStr = "0x", **kwargs
+    ) -> Union[TxReceipt, HexStr]:
         """Transfer ETH or interact with a smart contract.
 
         :param to: The address of the receiver.
@@ -89,8 +91,12 @@ class Account:
             gas_limit (int): Specify the maximum gas the transaction can use.
             access_list (List[Dict]): Specify a list of addresses and storage
                 keys that the transaction plans to access (EIP-2930).
+            wait_for_receipt (bool): Wait for the transaction receipt,
+                defaults to :const:`True`.
 
-        :rtype: TxReceipt
+        :returns: The transaction receipt or the transaction hash if
+            `wait_for_receipt` is :const:`False`.
+        :rtype: Union[TxReceipt, HexStr]
         """
 
         if to:
@@ -115,6 +121,8 @@ class Account:
         tx = self.eth_acct.sign_transaction(tx).rawTransaction
         tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
         logger.info(f"Transaction to {to}: {tx_hash}")
+        if not kwargs.get("wait_for_receipt", True):
+            return tx_hash
         receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash)
         if not receipt.status:
             raise Exception(f"Transact to {to} failed.")
