@@ -85,6 +85,7 @@ def compile_sol(
         bytecode.
     :rtype: Dict[str, Tuple[Dict, str]]
     """
+    assert solc_version is not None, 'solc_version must be set'
 
     try:
         set_solc_version(solc_version)
