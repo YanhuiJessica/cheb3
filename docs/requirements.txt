@@ -33,7 +33,7 @@ docutils==0.19
     # via
     #   sphinx
     #   sphinx-rtd-theme
-eth-abi==5.0.0
+eth-abi==5.0.1
     # via
     #   eth-account
     #   web3
@@ -41,7 +41,6 @@ eth-account==0.10.0
     # via web3
 eth-hash[pycryptodome]==0.6.0
     # via
-    #   eth-hash
     #   eth-utils
     #   web3
 eth-keyfile==0.7.0
