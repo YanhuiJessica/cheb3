@@ -43,7 +43,6 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
   update-docs-requirements:
     name: Update docs requirements
-    if: startsWith(github.ref, 'refs/tags')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -55,6 +54,7 @@ jobs:
       - name: Install pip-tools
         run: python3 -m pip install pip-tools
       - name: Update requirements.txt
+        if: startsWith(github.ref, 'refs/tags')
         run: cd docs/ && pip-compile requirements.in > requirements.txt
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
