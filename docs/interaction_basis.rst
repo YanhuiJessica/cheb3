@@ -37,6 +37,16 @@ To get the ABI and bytecode of a contract, you can use :meth:`~cheb3.utils.compi
     base_path="node_modules/" # to include source code from other directories
     )["Cheb3Token"] # choose the expected contract
 
+If you are working on a Hardhat/Foundry project, you can use :meth:`~cheb3.utils.load_compiled` to reuse the project compilation results.
+
+.. code-block:: python
+
+    >>> from cheb3.utils import load_compiled
+    >>> abi, bytecode = load_compiled(
+        "Token.sol",    # the contract file
+        "Cheb3Token"    # the contract name, default to the filename without suffix
+    )
+
 Interacting with Existing Contracts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
