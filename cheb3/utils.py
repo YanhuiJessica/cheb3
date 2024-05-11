@@ -60,7 +60,7 @@ def compile_file(
 def compile_sol(
     contract_source: str,
     contract_names: Union[str, List[str]] = None,
-    solc_version: str = None,
+    solc_version: str = "latest",
     base_path: str = None,
 ) -> Dict[str, Tuple[Dict, str]]:
     """Compile the Solidity source and return the ABI and bytecode of
@@ -72,9 +72,9 @@ def compile_sol(
         contract names, defaults to :const:`None`. If not given, it
         will return all contracts in the source file.
     :type contract_name: str | List[str]
-    :param solc_version: `solc` version to use, defaults to :const:`None`.
-        If not given, the currently active version is used. If the specified
-        version is not installed, it will be installed automatically.
+    :param solc_version: `solc` version to use, defaults to :const:`latest`,
+        i.e. the latest available version. If the specified version
+        is not installed, it will be installed automatically.
     :type solc_version: str
     :param base_path: Use the given path as the root of the source tree
         to include other dependence contracts, e.g. the path to
@@ -85,7 +85,8 @@ def compile_sol(
         bytecode.
     :rtype: Dict[str, Tuple[Dict, str]]
     """
-    assert solc_version is not None, 'solc_version must be set'
+    if solc_version == "latest":
+        solc_version = install_solc()
 
     try:
         set_solc_version(solc_version)
