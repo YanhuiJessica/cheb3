@@ -229,7 +229,7 @@ class ContractFunctionWrapper(ContractFunction):
             estimate_gas = 3000000
         tx = {
             "chainId": self.w3.eth.chain_id,
-            "nonce": self.w3.eth.get_transaction_count(self.signer.address),
+            "nonce": kwargs.get("nonce", self.w3.eth.get_transaction_count(self.signer.address)),
             "gasPrice": kwargs.get("gas_price", self.w3.eth.gas_price),
             "value": kwargs.get("value", 0),
             "gas": kwargs.get("gas_limit", estimate_gas),
