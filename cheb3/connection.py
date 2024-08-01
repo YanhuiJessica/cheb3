@@ -1,3 +1,4 @@
+import subprocess
 from typing import Any
 from hexbytes import HexBytes
 from requests.exceptions import ConnectionError
@@ -66,6 +67,44 @@ class Connection:
         """
         contract_factory = Contract.factory(self.w3, contract_name)
         return contract_factory(signer, address, **kwargs)
+
+    def cast_call(self, to: str, signature: str, *_args) -> str:
+        """Use cast with default settings to interact with a smart contract
+        without creating a new transaction on the blockchain.
+        View `Foundry book <https://book.getfoundry.sh/reference/cast/cast-call>`_ for more details.
+
+        :param to: The address of the target contract.
+        :type to: str
+        :param signature: The function signature.
+        :type signature: str
+        :param `*args`: Function arguments.
+        """
+        args = []
+        for a in _args:
+            if isinstance(a, (int, list)):
+                args.append(str(a))
+            elif isinstance(a, bool):
+                args.append(str(a).lower())
+            else:
+                args.append(a)
+        ret = subprocess.run(
+            [
+                "cast",
+                "call",
+                "--rpc-url",
+                self.w3.provider.endpoint_uri,
+                to,
+                signature,
+                *args,
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        if ret.returncode != 0:
+            err = ret.stderr.decode().strip()
+            raise Exception(err[err.find("Context:"):])
+        ret = ret.stdout.decode().strip()
+        return ret
 
     def get_balance(self, address: str) -> int:
         """Returns the balance of the given account.
