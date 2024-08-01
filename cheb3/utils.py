@@ -191,7 +191,7 @@ def encode_with_signature(signature: str, *args) -> HexStr:
 
     :param signature: The function signature.
     :type signature: str
-    :param `*args`: The parameters to be encoded.
+    :param `*args`: The arguments to be encoded.
 
     :return: The encoded data.
     :rtype: HexStr
