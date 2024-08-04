@@ -69,7 +69,7 @@ class Contract:
             proxy (bool): A minimal proxy contract (ERC-1167) will be deployed
                 and connected to the logic contract if set to :const:`True`,
                 defaults to :const:`False`.
-            access_list (List[Dict]): Specify a list of addresses and storage
+            access_list (List[Dict]): Specifies a list of addresses and storage
                 keys that the transaction plans to access (EIP-2930). It will only
                 be used in logic contract deployment if `proxy` is :const:`True`.
         """

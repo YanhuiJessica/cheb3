@@ -87,13 +87,13 @@ class Account:
         :type data: HexStr
 
         Keyword Args:
-            gas_price (int): Specify the gas price for the transaction.
-            gas_limit (int): Specify the maximum gas the transaction can use.
-            nonce (int): Allow to overwrite pending transactions that use
+            gas_price (int): Specifies the gas price for the transaction.
+            gas_limit (int): Specifies the maximum gas the transaction can use.
+            nonce (int): Allows to overwrite pending transactions that use
                 the same nonce.
-            access_list (List[Dict]): Specify a list of addresses and storage
+            access_list (List[Dict]): Specifies a list of addresses and storage
                 keys that the transaction plans to access (EIP-2930).
-            wait_for_receipt (bool): Wait for the transaction receipt,
+            wait_for_receipt (bool): Waits for the transaction receipt,
                 defaults to :const:`True`.
 
         :returns: The transaction receipt or the transaction hash if

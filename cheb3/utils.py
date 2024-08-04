@@ -25,7 +25,7 @@ def load_compiled(contract_file: str, contract_name: str = None, base_path: str 
     :param contract_name: Specifies the contract to be loaded. Defaults
         to the contract filename without suffix.
     :type contract_name: str
-    :param base_path: Use the given path as the root of the source tree
+    :param base_path: Uses the given path as the root of the source tree
         to load the compiled output. Defaults to "out/".
     :type base_path: str
 
@@ -63,7 +63,7 @@ def compile_sol(
     solc_version: str = "latest",
     base_path: str = None,
 ) -> Dict[str, Tuple[Dict, str]]:
-    """Compile the Solidity source and return the ABI and bytecode of
+    """Compiles the Solidity source and return the ABI and bytecode of
     the specific contracts.
 
     :param contract_source: The Solidity source code.
@@ -76,7 +76,7 @@ def compile_sol(
         i.e. the latest available version. If the specified version
         is not installed, it will be installed automatically.
     :type solc_version: str
-    :param base_path: Use the given path as the root of the source tree
+    :param base_path: Uses the given path as the root of the source tree
         to include other dependence contracts, e.g. the path to
         openzeppelin contracts. Defaults to :const:`None`.
     :type base_path: str
@@ -232,7 +232,7 @@ def encode_with_signature(signature: str, *args) -> HexStr:
 
 
 def calc_create_address(sender: HexStr, nonce: int) -> HexStr:
-    """Calculate the address of the contract created by the given sender
+    """Calculates the address of the contract created by the given sender
     using the `CREATE` opcode with the given nonce.
 
     :param sender: The address of the sender.
@@ -248,7 +248,7 @@ def calc_create_address(sender: HexStr, nonce: int) -> HexStr:
 
 
 def calc_create2_address(sender: HexStr, salt: int, initcode: HexStr) -> HexStr:
-    """Calculate the address of the contract created by the given sender
+    """Calculates the address of the contract created by the given sender
     using the `CREATE2` opcode with the given salt and contract bytecode.
 
     :param sender: The address of the sender.
