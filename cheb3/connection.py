@@ -68,7 +68,7 @@ class Connection:
         contract_factory = Contract.factory(self.w3, contract_name)
         return contract_factory(signer, address, **kwargs)
 
-    def cast_call(self, to: str, signature: str, *_args) -> str:
+    def cast_call(self, to: str, signature: str, *_args, **kwargs) -> str:
         """Use cast with default settings to interact with a smart contract
         without creating a new transaction on the blockchain.
         View `Foundry book <https://book.getfoundry.sh/reference/cast/cast-call>`_ for more details.
@@ -78,6 +78,9 @@ class Connection:
         :param signature: The function signature.
         :type signature: str
         :param `*args`: Function arguments.
+
+        Keyword Args:
+            from (str): Specifies the address of the sender.
         """
         args = []
         for a in _args:
@@ -87,12 +90,14 @@ class Connection:
                 args.append(str(a).lower())
             else:
                 args.append(a)
+        options = ["--rpc-url", self.w3.provider.endpoint_uri]
+        if "from" in kwargs:
+            options.extend(["--from", kwargs["from"]])
         ret = subprocess.run(
             [
                 "cast",
                 "call",
-                "--rpc-url",
-                self.w3.provider.endpoint_uri,
+                *options,
                 to,
                 signature,
                 *args,
