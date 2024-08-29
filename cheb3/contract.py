@@ -13,14 +13,13 @@ from web3.contract.base_contract import (
 )
 from web3._utils.datatypes import PropertyCheckingFactory
 from web3._utils.abi import (
-    filter_by_type,
+    filter_abi_by_type,
     fallback_func_abi_exists,
     receive_func_abi_exists,
 )
-from web3._utils.function_identifiers import FallbackFn, ReceiveFn
-from web3.exceptions import ContractLogicError
-from web3.types import ABI, TxReceipt
-from eth_typing import ChecksumAddress
+from web3._utils.abi_element_identifiers import FallbackFn, ReceiveFn
+from web3.types import TxReceipt
+from eth_typing import ABI, ChecksumAddress
 import eth_account
 
 from cheb3.account import Account
@@ -194,13 +193,11 @@ class ContractFunctionsWrapper(ContractFunctions):
         w3: Union["Web3", "AsyncWeb3"],
         address: Optional[ChecksumAddress] = None,
     ) -> None:
-        self.abi = abi
-        self.w3 = w3
-        self.address = address
         self.signer = signer
+        super().__init__(abi, w3, address)
 
         if self.abi:
-            self._functions = filter_by_type("function", self.abi)
+            self._functions = filter_abi_by_type("function", self.abi)
             for func in self._functions:
                 setattr(
                     self,

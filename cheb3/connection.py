@@ -4,7 +4,7 @@ from hexbytes import HexBytes
 from requests.exceptions import ConnectionError
 
 from web3 import Web3
-from web3.middleware import geth_poa_middleware
+from web3.middleware import ExtraDataToPOAMiddleware
 
 from cheb3.account import Account
 from cheb3.contract import Contract
@@ -19,7 +19,7 @@ class Connection:
 
     def __init__(self, endpoint_uri: str) -> None:
         self.w3 = Web3(Web3.HTTPProvider(endpoint_uri))
-        self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+        self.w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
 
         try:
             self.w3.is_connected(show_traceback=True)
