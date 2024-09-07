@@ -120,7 +120,7 @@ class Account:
         except Exception:
             estimate_gas = 3000000
         tx["gas"] = kwargs.get("gas_limit", estimate_gas)
-        tx = self.eth_acct.sign_transaction(tx).rawTransaction
+        tx = self.eth_acct.sign_transaction(tx).raw_transaction
         tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
         logger.info(f"Transaction to {to}: {tx_hash}")
         if not kwargs.get("wait_for_receipt", True):

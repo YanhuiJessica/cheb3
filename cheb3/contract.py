@@ -93,7 +93,7 @@ class Contract:
                     "accessList": kwargs.get("access_list", []),
                 }
             )
-        ).rawTransaction
+        ).raw_transaction
         logger.debug(f"Deploying {type(self).__name__} ...")
         tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
         receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash)
@@ -115,7 +115,7 @@ class Contract:
                 "data": proxy_bytecode,
             }
             tx["gas"] = kwargs.get("gas_limit", self.w3.eth.estimate_gas(tx) + GAS_BUFFER)
-            tx = self.signer.sign_transaction(tx).rawTransaction
+            tx = self.signer.sign_transaction(tx).raw_transaction
             logger.debug("Deploying the proxy ...")
             tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
             receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash)
@@ -208,7 +208,7 @@ class ContractFunctionsWrapper(ContractFunctions):
                         signer=self.signer,
                         contract_abi=self.abi,
                         address=self.address,
-                        function_identifier=func["name"],
+                        abi_element_identifier=func["name"],
                     ),
                 )
 
@@ -233,7 +233,7 @@ class ContractFunctionWrapper(ContractFunction):
         }
         if kwargs.get("access_list"):
             tx["accessList"] = kwargs["access_list"]
-        tx = self.signer.sign_transaction(self.build_transaction(tx)).rawTransaction
+        tx = self.signer.sign_transaction(self.build_transaction(tx)).raw_transaction
         tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
         func_name = self.function_identifier if isinstance(self.function_identifier, str) else self.function_identifier.__name__
         logger.info(f"({self.address}).{func_name} transaction hash: {tx_hash}")
