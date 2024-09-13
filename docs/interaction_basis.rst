@@ -101,6 +101,17 @@ If you feel lazy to provide the ABI, you can interact with the contract using fu
     )
     80
 
+More easily, if you have `Foundry <https://book.getfoundry.sh/>`_ installed, you can interact with contracts using ``cast`` (currently only supports simple ``cast call``):
+
+.. code-block:: python
+
+    >>> conn.cast_call(
+        contract_addr,
+        "balanceOf(address)(uint)",
+        account.address
+    )
+    '5000000000000000 [5e15]'
+
 Deploying New Contracts
 ~~~~~~~~~~~~~~~~~~~~~~~
 
