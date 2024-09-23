@@ -26,7 +26,7 @@ certifi==2024.8.30
     # via requests
 charset-normalizer==3.3.2
     # via requests
-cheb3==0.12.1
+cheb3==0.12.2
     # via -r requirements.in
 ckzg==2.0.1
     # via eth-account
@@ -79,7 +79,7 @@ hexbytes==1.2.1
     #   eth-rlp
     #   eth-utils
     #   web3
-idna==3.8
+idna==3.10
     # via
     #   requests
     #   yarl
@@ -91,7 +91,7 @@ loguru==0.7.2
     # via cheb3
 markupsafe==2.1.5
     # via jinja2
-multidict==6.0.5
+multidict==6.1.0
     # via
     #   aiohttp
     #   yarl
@@ -107,17 +107,17 @@ pycryptodome==3.20.0
     # via
     #   eth-hash
     #   eth-keyfile
-pydantic==2.9.1
+pydantic==2.9.2
     # via
     #   eth-account
     #   web3
-pydantic-core==2.23.3
+pydantic-core==2.23.4
     # via pydantic
 pygments==2.18.0
     # via sphinx
-pyunormalize==15.1.0
+pyunormalize==16.0.0
     # via web3
-regex==2024.7.24
+regex==2024.9.11
     # via parsimonious
 requests==2.32.3
     # via
@@ -153,22 +153,23 @@ sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
 toolz==0.12.1
     # via cytoolz
-types-requests==2.32.0.20240907
+types-requests==2.32.0.20240914
     # via web3
 typing-extensions==4.12.2
     # via
     #   eth-rlp
     #   eth-typing
+    #   multidict
     #   pydantic
     #   pydantic-core
     #   web3
-urllib3==2.2.2
+urllib3==2.2.3
     # via
     #   requests
     #   types-requests
 web3==7.2.0
     # via cheb3
-websockets==13.0.1
+websockets==13.1
     # via web3
-yarl==1.11.0
+yarl==1.11.1
     # via aiohttp
