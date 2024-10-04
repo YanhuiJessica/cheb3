@@ -82,6 +82,7 @@ class Contract:
         tx = self.signer.sign_transaction(
             self.instance.constructor(*constructor_args).build_transaction(
                 {
+                    "from": self.signer.address,
                     "chainId": self.w3.eth.chain_id,
                     "nonce": self.w3.eth.get_transaction_count(self.signer.address),
                     "gas": kwargs.get(
@@ -225,6 +226,7 @@ class ContractFunctionWrapper(ContractFunction):
         except Exception:
             estimate_gas = 3000000
         tx = {
+            "from": self.signer.address,
             "chainId": self.w3.eth.chain_id,
             "nonce": kwargs.get("nonce", self.w3.eth.get_transaction_count(self.signer.address)),
             "gasPrice": kwargs.get("gas_price", self.w3.eth.gas_price),
@@ -235,7 +237,11 @@ class ContractFunctionWrapper(ContractFunction):
             tx["accessList"] = kwargs["access_list"]
         tx = self.signer.sign_transaction(self.build_transaction(tx)).raw_transaction
         tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
-        func_name = self.abi_element_identifier if isinstance(self.abi_element_identifier, str) else self.abi_element_identifier.__name__
+        func_name = (
+            self.abi_element_identifier
+            if isinstance(self.abi_element_identifier, str)
+            else self.abi_element_identifier.__name__
+        )
         logger.info(f"({self.address}).{func_name} transaction hash: {tx_hash}")
         if not kwargs.get("wait_for_receipt", True):
             return tx_hash
