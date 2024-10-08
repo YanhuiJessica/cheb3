@@ -49,12 +49,13 @@ def compile_file(
 
     Check :func:`compile_sol` for more details.
     """
-    return compile_sol(
-        open(contract_file, "r", encoding="utf-8").read(),
-        contract_names=contract_names,
-        solc_version=solc_version,
-        base_path=base_path,
-    )
+    with open(contract_file, "r", encoding="utf-8") as f:
+        return compile_sol(
+            f.read(),
+            contract_names=contract_names,
+            solc_version=solc_version,
+            base_path=base_path,
+        )
 
 
 def compile_sol(
