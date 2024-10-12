@@ -24,4 +24,7 @@ jobs:
           pip install git+https://github.com/YanhuiJessica/cheb3.git#egg=cheb3
       - name: Python ${{ matrix.python-version }} test utils
         run: |
-          python3 -m pytest
+          python3 -m pytest tests/utils
+      - name: Python ${{ matrix.python-version }} test integration
+        run: |
+          python3 -m pytest tests/integration
