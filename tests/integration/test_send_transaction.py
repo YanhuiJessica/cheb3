@@ -2,7 +2,7 @@ import pytest
 from web3 import Web3, EthereumTesterProvider
 
 from cheb3 import Connection
-from cheb3.utils import compile_file, decode_data, encode_with_signature
+from cheb3.utils import compile_file, encode_with_signature
 
 # set up the keyfile account with a known address
 KEYFILE_ACCOUNT_PKEY = "0x58d23b55bc9cdce1f18c2500f40ff4ab7245df9a89505e9b1fa4851f623d241d"
