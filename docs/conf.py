@@ -1,7 +1,7 @@
 # -- Project information -----------------------------------------------------
 
 project = "cheb3"
-copyright = "2023-2024, YanhuiJessica"
+copyright = "2023-2025, YanhuiJessica"
 author = "YanhuiJessica"
 
 
