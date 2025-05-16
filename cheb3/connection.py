@@ -69,9 +69,18 @@ class Connection:
         return contract_factory(signer, address, **kwargs)
 
     def cast_call(self, to: str, signature: str, *_args, **kwargs) -> str:
-        """Use cast with default settings to interact with a smart contract
+        r"""Use cast with default settings to interact with a smart contract
         without creating a new transaction on the blockchain.
         View `Foundry book <https://book.getfoundry.sh/reference/cast/cast-call>`_ for more details.
+
+        Examples:
+
+            >>> conn.cast_call(
+                contract_addr,
+                "balanceOf(address)(uint256)",
+                account.address
+            )
+            '5000000000000000 [5e15]'
 
         :param to: The address of the target contract.
         :type to: str
