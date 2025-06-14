@@ -8,6 +8,7 @@ from web3._utils.datatypes import PropertyCheckingFactory
 from web3.types import TxReceipt
 from eth_typing import HexStr
 import eth_account
+from eth_account.datastructures import SignedMessage
 
 from cheb3.constants import GAS_BUFFER
 
@@ -42,6 +43,30 @@ class Account:
     def factory(cls, w3: Web3) -> "Account":
         eth_acct = cast(Account, PropertyCheckingFactory(cls.__name__, (cls,), {"w3": w3}))
         return eth_acct
+
+    def sign_raw_message_hash(self, message_hash: HexStr) -> SignedMessage:
+        """Signs a raw message hash with the account's private key.
+
+        Examples:
+
+            >>> msg_hash = Web3.solidity_keccak(["uint256", "address"], [10, account.address])
+            >>> sig = account.sign_raw_message_hash(msg_hash)
+            >>> sig
+            SignedMessage(message_hash=HexBytes('0xe17bbd560054251725995886026ff6de42a496c52d90cc3ba61a5a97e3cda128'), r=97529042910999732419272940067647801719735539298841301635952986349446066833551, s=1555140386957721792444331594584329432191181296221261541177951220673132507501, v=28, signature=HexBytes('0xd79f7b6a5c832d450820a60ad7a99c2df98708c417c7c5cb52d0ee270cf7888f03702da2e2862f0d30386d32610c3f833d7dbd8d0ea06b7db2beb83d3656316d1c'))
+            >>> sig.signature.hex()
+            'd79f7b6a5c832d450820a60ad7a99c2df98708c417c7c5cb52d0ee270cf7888f03702da2e2862f0d30386d32610c3f833d7dbd8d0ea06b7db2beb83d3656316d1c'
+            >>> sig.r
+            97529042910999732419272940067647801719735539298841301635952986349446066833551
+
+
+        :param message_hash: The hash of the message to sign.
+        :type message_hash: HexStr
+        :returns: The signed message as a HexBytes object.
+        :returns: Various details about the signature - most
+          importantly the fields: v, r, and s
+        :rtype: ~eth_account.datastructures.SignedMessage
+        """
+        return eth_account.Account._sign_hash(message_hash, self.private_key)
 
     def get_balance(self) -> int:
         """Returns the balance of the account instance."""
