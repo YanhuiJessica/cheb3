@@ -1,8 +1,8 @@
-import pkg_resources
+from importlib.metadata import version
 
 from cheb3.connection import Connection
 
-__version__ = pkg_resources.get_distribution("cheb3").version
+__version__ = version("cheb3")
 
 __all__ = [
     "__version__",
