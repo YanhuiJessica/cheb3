@@ -16,9 +16,30 @@
 Installation
 ============
 
+`cheb3` can be installed using `pip` as follows:
+
 .. code-block:: shell
 
-   $ python3 -m pip install cheb3
+    $ python3 -m pip install cheb3
+
+Using `poetry` (Recommended)
+----------------------------
+
+You can create a new isolated environment for `cheb3` via `poetry`:
+
+.. code-block:: shell
+
+    $ python3 -m pip install poetry
+    $ mkdir ~/.cheb3_env && cd ~/.cheb3_env
+    $ poetry init --name=cheb3-env --python=">=3.8,<4" --no-interaction
+    $ poetry add cheb3
+
+Then, activate this environment every time before using `cheb3`:
+
+.. code-block:: shell
+
+    $ eval $(cd ~/.cheb3_env && poetry env activate && cd -)
+    (cheb3-env-py3.10) $
 
 .. end-of-readme-intro
 
