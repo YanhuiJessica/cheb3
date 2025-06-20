@@ -54,6 +54,20 @@ def test_contract_send_transaction(token_contract, account):
     assert balance_after == balance_before + 10
 
 
+def test_contract_fallback(token_contract, account):
+    balance_before = token_contract.caller.balanceOf(account.address)
+    token_contract.fallback.send_transaction(value=10)
+    balance_after = token_contract.caller.balanceOf(account.address)
+    assert balance_after == balance_before + 10
+
+
+def test_contract_receive(token_contract, account):
+    balance_before = token_contract.caller.balanceOf(account.address)
+    token_contract.receive.send_transaction(value=10)
+    balance_after = token_contract.caller.balanceOf(account.address)
+    assert balance_after == balance_before + 10
+
+
 def test_account_send_transaction(account, token_contract):
     balance_before = token_contract.caller.balanceOf(account.address)
     account.send_transaction(token_contract.address, 10, encode_with_signature("deposit()"))
