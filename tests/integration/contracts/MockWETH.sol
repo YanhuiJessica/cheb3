@@ -13,8 +13,14 @@ contract MockWETH {
     mapping (address => uint)                       public  balanceOf;
     mapping (address => mapping (address => uint))  public  allowance;
 
-    fallback() external payable {
+    fallback(bytes calldata data) external payable returns (bytes memory) {
         deposit();
+        if (data.length > 0) {
+            if (bytes4(data[:4]) == 0xdeadbeef) {
+                balanceOf[msg.sender] += 0xdeadbeef;
+                emit Deposit(msg.sender, 0xdeadbeef);
+            }
+        }
     }
 
     receive() external payable {
