@@ -1,4 +1,4 @@
-from typing import cast, Optional, Union
+from typing import cast, Optional, Union, Sequence
 from hexbytes import HexBytes
 
 from web3 import Web3, AsyncWeb3
@@ -19,7 +19,8 @@ from web3._utils.abi import (
 )
 from web3._utils.abi_element_identifiers import FallbackFn, ReceiveFn
 from web3.types import TxReceipt
-from eth_typing import ABI, ChecksumAddress
+from eth_utils import abi_to_signature
+from eth_typing import ABI, ABIFunction, ChecksumAddress
 import eth_account
 
 from cheb3.account import Account
@@ -131,6 +132,7 @@ class Contract:
     @staticmethod
     def get_fallback_function(abi: ABI, w3: Web3, signer: eth_account.Account, address: str):
         if abi and fallback_func_abi_exists(abi):
+            fallback_abi = filter_abi_by_type("fallback", abi)[0]
             return ContractFunctionWrapper.factory(
                 "fallback",
                 w3=w3,
@@ -138,6 +140,7 @@ class Contract:
                 contract_abi=abi,
                 address=address,
                 abi_element_identifier=FallbackFn,
+                abi=fallback_abi,
             )()
         else:
             return cast(ContractFunctionWrapper, NonExistentFallbackFunction())
@@ -145,6 +148,7 @@ class Contract:
     @staticmethod
     def get_receive_function(abi: ABI, w3: Web3, signer: eth_account.Account, address: str):
         if abi and receive_func_abi_exists(abi):
+            receive_abi = filter_abi_by_type("receive", abi)[0]
             return ContractFunctionWrapper.factory(
                 "receive",
                 w3=w3,
@@ -152,6 +156,7 @@ class Contract:
                 contract_abi=abi,
                 address=address,
                 abi_element_identifier=ReceiveFn,
+                abi=receive_abi,
             )()
         else:
             return cast(ContractFunctionWrapper, NonExistentReceiveFunction())
@@ -195,23 +200,34 @@ class ContractFunctionsWrapper(ContractFunctions):
         address: Optional[ChecksumAddress] = None,
     ) -> None:
         self.signer = signer
-        super().__init__(abi, w3, address)
+        self.abi = abi
+        self.w3 = w3
+        self.address = address
+        _functions: Sequence[ABIFunction] = None
 
         if self.abi:
-            self._functions = filter_abi_by_type("function", self.abi)
-            for func in self._functions:
-                setattr(
-                    self,
-                    func["name"],
-                    ContractFunctionWrapper.factory(
-                        func["name"],
-                        w3=self.w3,
-                        signer=self.signer,
-                        contract_abi=self.abi,
-                        address=self.address,
-                        abi_element_identifier=func["name"],
-                    ),
+            _functions = sorted(
+                filter_abi_by_type("function", self.abi),
+                key=lambda fn: (fn["name"], len(fn.get("inputs", []))),
+            )
+            for func in _functions:
+                abi_signature = abi_to_signature(func)
+                function_factory = ContractFunctionWrapper.factory(
+                    abi_signature,
+                    w3=self.w3,
+                    signer=self.signer,
+                    contract_abi=self.abi,
+                    address=self.address,
+                    abi=func,
                 )
+
+                if func["name"] not in self.__dict__:
+                    setattr(self, func["name"], function_factory)
+
+                setattr(self, f"_{abi_signature}", function_factory)
+
+        if _functions:
+            self._functions = _functions
 
 
 class ContractFunctionWrapper(ContractFunction):

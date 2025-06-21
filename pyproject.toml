@@ -10,7 +10,7 @@ description = "Web3 CTF tool based on web3.py"
 readme = "README.rst"
 requires-python = ">=3.8"
 dependencies = [
-  "web3>=7.1.0,<7.6.0",
+  "web3>=7.11.0",
   "py-solc-x>=2.0.2",
   "loguru",
 ]
