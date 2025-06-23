@@ -24,6 +24,7 @@ from eth_typing import ABI, ABIFunction, ChecksumAddress
 import eth_account
 
 from cheb3.account import Account
+from cheb3.helper import Web3Helper
 from cheb3.constants import GAS_BUFFER
 
 from loguru import logger
@@ -35,7 +36,7 @@ class Contract:
     """
 
     # set during class construction
-    w3: Web3 = None
+    w3: Web3Helper = None
 
     def __init__(self, signer: Account = None, address: str = None, **kwargs) -> None:
         """
@@ -65,12 +66,20 @@ class Contract:
         Keyword Args:
             value (int): The amount to transfer, defaults to 0 (wei).
             gas_price (int): Specifies the gas price for the deployment.
+            max_priority_fee_per_gas (int): Specifies the fee that goes to the miner,
+                defaults to the value of :attr:`~web3.eth.Eth.max_priority_fee`.
+            max_fee_per_gas (int): Specifies the maximum amount you are willing to pay,
+                inclusive of `baseFeePerGas` and `maxPriorityFeePerGas`. Its default value
+                is the sum of `maxPriorityFeePerGas` and twice the `baseFeePerGas` of the latest block.
             gas_limit (int): Specifies the maximum gas the deployment can use.
             proxy (bool): A minimal proxy contract (ERC-1167) will be deployed
                 and connected to the logic contract if set to :const:`True`,
                 defaults to :const:`False`.
             access_list (List[Dict]): Specifies a list of addresses and storage
                 keys that the transaction plans to access (EIP-2930). It will only
+                be used in logic contract deployment if `proxy` is :const:`True`.
+            authorization_list (List[SignedSetCodeAuthorization]): Specifies a
+                list of signed authorizations (EIP-7702). It will only
                 be used in logic contract deployment if `proxy` is :const:`True`.
         """
         if not self.signer:
@@ -80,22 +89,19 @@ class Contract:
             logger.info(f"Contract {type(self).__name__} has already been deployed at {self.address}.")
             return
 
-        tx = self.signer.sign_transaction(
-            self.instance.constructor(*constructor_args).build_transaction(
-                {
-                    "from": self.signer.address,
-                    "chainId": self.w3.eth.chain_id,
-                    "nonce": self.w3.eth.get_transaction_count(self.signer.address),
-                    "gas": kwargs.get(
-                        "gas_limit",
-                        self.instance.constructor(*constructor_args).estimate_gas({"from": self.signer.address}),
-                    ) + GAS_BUFFER,
-                    "gasPrice": kwargs.get("gas_price", self.w3.eth.gas_price),
-                    "value": kwargs.get("value", 0),
-                    "accessList": kwargs.get("access_list", []),
-                }
-            )
-        ).raw_transaction
+        tx = self.w3._build_transaction(self.signer.address, kwargs)
+        tx.update(
+            {
+                "gas": kwargs.get(
+                    "gas_limit",
+                    self.instance.constructor(*constructor_args).estimate_gas({"from": self.signer.address}),
+                )
+                + GAS_BUFFER,
+                "value": kwargs.get("value", 0),
+            }
+        )
+        tx = self.instance.constructor(*constructor_args).build_transaction(tx)
+        tx = self.signer.sign_transaction(tx).raw_transaction
         logger.debug(f"Deploying {type(self).__name__} ...")
         tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
         receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash)
@@ -130,7 +136,7 @@ class Contract:
         self._init_functions()
 
     @staticmethod
-    def get_fallback_function(abi: ABI, w3: Web3, signer: eth_account.Account, address: str):
+    def get_fallback_function(abi: ABI, w3: Web3Helper, signer: eth_account.Account, address: str):
         if abi and fallback_func_abi_exists(abi):
             fallback_abi = filter_abi_by_type("fallback", abi)[0]
             return ContractFunctionWrapper.factory(
@@ -146,7 +152,7 @@ class Contract:
             return cast(ContractFunctionWrapper, NonExistentFallbackFunction())
 
     @staticmethod
-    def get_receive_function(abi: ABI, w3: Web3, signer: eth_account.Account, address: str):
+    def get_receive_function(abi: ABI, w3: Web3Helper, signer: eth_account.Account, address: str):
         if abi and receive_func_abi_exists(abi):
             receive_abi = filter_abi_by_type("receive", abi)[0]
             return ContractFunctionWrapper.factory(
@@ -169,7 +175,7 @@ class Contract:
         self.receive = self.get_receive_function(self.instance.abi, self.w3, self.signer, self.address)
 
     @classmethod
-    def factory(cls, w3: Web3, contract_name: str = "") -> "Contract":
+    def factory(cls, w3: Web3Helper, contract_name: str = "") -> "Contract":
         contract = cast(
             Contract,
             PropertyCheckingFactory(contract_name or cls.__name__.lower(), (cls,), {"w3": w3}),
@@ -241,16 +247,13 @@ class ContractFunctionWrapper(ContractFunction):
             estimate_gas = self.estimate_gas() + GAS_BUFFER
         except Exception:
             estimate_gas = 3000000
-        tx = {
-            "from": self.signer.address,
-            "chainId": self.w3.eth.chain_id,
-            "nonce": kwargs.get("nonce", self.w3.eth.get_transaction_count(self.signer.address)),
-            "gasPrice": kwargs.get("gas_price", self.w3.eth.gas_price),
-            "value": kwargs.get("value", 0),
-            "gas": kwargs.get("gas_limit", estimate_gas),
-        }
-        if kwargs.get("access_list"):
-            tx["accessList"] = kwargs["access_list"]
+        tx = self.w3._build_transaction(self.signer.address, kwargs)
+        tx.update(
+            {
+                "value": kwargs.get("value", 0),
+                "gas": kwargs.get("gas_limit", estimate_gas),
+            }
+        )
         tx = self.signer.sign_transaction(self.build_transaction(tx)).raw_transaction
         tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
         func_name = (

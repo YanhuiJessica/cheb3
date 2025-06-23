@@ -229,7 +229,7 @@ def encode_with_signature(signature: str, *args) -> HexStr:
     selector = Web3.solidity_keccak(["string"], [signature])[:4]
 
     parameters = eth_abi.encode(types, args)
-    return f"0x{(selector + parameters).hex()}"
+    return HexStr(f"0x{(selector + parameters).hex()}")
 
 
 def calc_create_address(sender: HexStr, nonce: int) -> HexStr:

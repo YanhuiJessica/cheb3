@@ -2,6 +2,7 @@ import pytest
 from web3 import Web3, EthereumTesterProvider
 
 from cheb3 import Connection
+from cheb3.helper import Web3Helper
 from cheb3.utils import compile_file, encode_with_signature
 
 # set up the keyfile account with a known address
@@ -11,7 +12,7 @@ KEYFILE_ACCOUNT_ADDRESS = "0xdC544d1AA88Ff8bbd2F2AeC754B1F1e99e1812fd"
 # For testing purposes
 class ConnectionMock(Connection):
     def __init__(self) -> None:
-        self.w3 = Web3(EthereumTesterProvider())
+        self.w3 = Web3Helper(EthereumTesterProvider())
 
 
 @pytest.fixture(scope="module")

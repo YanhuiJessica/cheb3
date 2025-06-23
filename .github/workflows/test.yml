@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: |
           python3 -m pip install -U pip
-          pip install pytest eth_tester py-evm
+          pip install pytest web3[tester]
           pip install git+https://github.com/YanhuiJessica/cheb3.git#egg=cheb3
       - name: Python ${{ matrix.python-version }} test utils
         run: |

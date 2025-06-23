@@ -8,9 +8,10 @@ from web3._utils.datatypes import PropertyCheckingFactory
 from web3.types import TxReceipt
 from eth_typing import HexStr
 import eth_account
-from eth_account.datastructures import SignedMessage
+from eth_account.datastructures import SignedMessage, SignedSetCodeAuthorization
 
 from cheb3.constants import GAS_BUFFER
+from cheb3.helper import Web3Helper
 
 from loguru import logger
 
@@ -20,7 +21,7 @@ class Account:
     create an account instance associated with the connection.
     """
 
-    w3: Web3 = None
+    w3: Web3Helper = None
 
     def __init__(self, private_key: str = None) -> None:
         """Creates a new account if `private_key` is not given."""
@@ -40,7 +41,7 @@ class Account:
         self.private_key = self.eth_acct.key.hex()
 
     @classmethod
-    def factory(cls, w3: Web3) -> "Account":
+    def factory(cls, w3: Web3Helper) -> "Account":
         eth_acct = cast(Account, PropertyCheckingFactory(cls.__name__, (cls,), {"w3": w3}))
         return eth_acct
 
@@ -71,6 +72,30 @@ class Account:
         :rtype: ~eth_account.datastructures.SignedMessage
         """
         return eth_account.Account._sign_hash(message_hash, self.private_key)
+
+    def sign_authorization(self, target: HexStr, is_sender: bool = True, **kwargs) -> SignedSetCodeAuthorization:
+        """Sign an authorization to be included in a EIP-7702 transaction.
+
+        :param target: The address of the smart contract code to be associated with the account.
+        :type target: HexStr
+        :param is_sender: If the account is also the sender of the EIP-7702 transaction.
+            Its default value is :const:`True`, which means the nonce to be signed will
+            be 1 higher than the current nonce of the account. This is because the nonce
+            is increased before the transaction execution and again when processing
+            the authorization. It is not used when the keyword argument `nonce` is set.
+        :type is_sender: bool
+
+        Keyword Args:
+            chain_id (int): The chain ID for the chain where the account is located,
+                defaults to the chain ID of the current :class:`Connection <cheb3.connection.Connection>`.
+            nonce (int): Allows to sign an authorization with a specific nonce.
+        """
+        auth = {
+            "chainId": kwargs.get("chain_id", self.w3.eth.chain_id),
+            "nonce": kwargs.get("nonce", self.w3.eth.get_transaction_count(self.address) + is_sender),
+            "address": target,
+        }
+        return self.eth_acct.sign_authorization(auth)
 
     def get_balance(self) -> int:
         """Returns the balance of the account instance."""
@@ -116,12 +141,19 @@ class Account:
         :type data: HexStr
 
         Keyword Args:
-            gas_price (int): Specifies the gas price for the transaction.
+            gas_price (int): Specifies the gas price for the **LEGACY** transaction.
+            max_priority_fee_per_gas (int): Specifies the fee that goes to the miner,
+                defaults to the value of :attr:`~web3.eth.Eth.max_priority_fee`.
+            max_fee_per_gas (int): Specifies the maximum amount you are willing to pay,
+                inclusive of `baseFeePerGas` and `maxPriorityFeePerGas`. Its default value
+                is the sum of `maxPriorityFeePerGas` and twice the `baseFeePerGas` of the latest block.
             gas_limit (int): Specifies the maximum gas the transaction can use.
             nonce (int): Allows to overwrite pending transactions that use
                 the same nonce.
             access_list (List[Dict]): Specifies a list of addresses and storage
                 keys that the transaction plans to access (EIP-2930).
+            authorization_list (List[SignedSetCodeAuthorization]): Specifies a
+                list of signed authorizations (EIP-7702).
             wait_for_receipt (bool): Waits for the transaction receipt,
                 defaults to :const:`True`.
 
@@ -133,17 +165,14 @@ class Account:
         if to:
             to = Web3.to_checksum_address(to)
 
-        tx = {
-            "from": self.address,
-            "to": to,
-            "chainId": self.w3.eth.chain_id,
-            "nonce": kwargs.get("nonce", self.w3.eth.get_transaction_count(self.address)),
-            "value": value,
-            "gasPrice": kwargs.get("gas_price", self.w3.eth.gas_price),
-            "data": data,
-        }
-        if kwargs.get("access_list"):
-            tx["accessList"] = kwargs["access_list"]
+        tx = self.w3._build_transaction(self.address, kwargs)
+        tx.update(
+            {
+                "to": to,
+                "value": value,
+                "data": data,
+            }
+        )
         try:
             estimate_gas = self.w3.eth.estimate_gas(tx) + GAS_BUFFER
         except Exception:

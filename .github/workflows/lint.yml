@@ -20,5 +20,5 @@ jobs:
         with:
           update-pip: "true"
           ignore: "E401,F401"
-          max-line-length: "256"
+          max-line-length: "128"
           path: "cheb3"

@@ -3,11 +3,11 @@ from typing import Any
 from hexbytes import HexBytes
 from requests.exceptions import ConnectionError
 
-from web3 import Web3
 from web3.middleware import ExtraDataToPOAMiddleware
 
 from cheb3.account import Account
 from cheb3.contract import Contract
+from cheb3.helper import Web3Helper
 
 
 class Connection:
@@ -18,7 +18,7 @@ class Connection:
     """
 
     def __init__(self, endpoint_uri: str) -> None:
-        self.w3 = Web3(Web3.HTTPProvider(endpoint_uri))
+        self.w3 = Web3Helper(Web3Helper.HTTPProvider(endpoint_uri))
         self.w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
 
         try:
