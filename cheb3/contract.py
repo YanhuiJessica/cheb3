@@ -95,8 +95,7 @@ class Contract:
                 "gas": kwargs.get(
                     "gas_limit",
                     self.instance.constructor(*constructor_args).estimate_gas({"from": self.signer.address}),
-                )
-                + GAS_BUFFER,
+                ) + GAS_BUFFER,
                 "value": kwargs.get("value", 0),
             }
         )
@@ -108,7 +107,9 @@ class Contract:
         if not receipt.status:
             raise Exception(f"Failed to deploy {type(self).__name__}.")
         logger.info(
-            f"""The {"logic " if kwargs.get('proxy', False) else ""}{type(self).__name__} is deployed at {receipt.contractAddress}"""
+            f"""The {
+                "logic " if kwargs.get('proxy', False) else ""
+            }{type(self).__name__} is deployed at {receipt.contractAddress}"""
         )
         self.address = receipt.contractAddress
 

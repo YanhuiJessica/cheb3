@@ -112,7 +112,8 @@ class Account:
 
         Keyword Args:
             state_override (dict): Specify the state override set.
-                View `Geth documentation <https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-eth#eth-call>`_ for more details.
+                View `Geth documentation <https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-eth#eth-call>`_
+                for more details.
 
         :rtype: ~hexbytes.main.HexBytes
         """
