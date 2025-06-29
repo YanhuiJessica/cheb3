@@ -1,5 +1,5 @@
 import pytest
-from web3 import Web3, EthereumTesterProvider
+from web3 import EthereumTesterProvider
 
 from cheb3 import Connection
 from cheb3.helper import Web3Helper
@@ -46,6 +46,15 @@ def token_contract(setup, account):
     contract = setup.contract(account, abi=abi, bytecode=bytecode)
     contract.deploy()
     return contract
+
+
+def test_proxy_contract_deploy(setup, account):
+    abi, bytecode = compile_file("tests/integration/contracts/MockWETH.sol", solc_version="0.8.20")["MockWETH"]
+    contract = setup.contract(account, abi=abi, bytecode=bytecode)
+    contract.deploy(proxy=True)
+    code = setup.get_code(contract.address).to_0x_hex()[2:]
+    assert code[:18] == "363d3d373d3d3d363d"
+    assert code[-30:] == "5af43d82803e903d91602b57fd5bf3"
 
 
 def test_contract_send_transaction(token_contract, account):
