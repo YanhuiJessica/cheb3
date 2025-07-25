@@ -165,7 +165,7 @@ typing-extensions==4.12.2
     #   pydantic
     #   pydantic-core
     #   web3
-urllib3==2.2.3
+urllib3==2.5.0
     # via
     #   requests
     #   types-requests
