@@ -244,19 +244,20 @@ class ContractFunctionWrapper(ContractFunction):
         if not self.signer:
             raise AttributeError("The `signer` is missing.")
 
+        tx = self.w3._build_transaction(self.signer.address, kwargs)
+        tx = self.build_transaction(tx)
         try:
-            estimate_gas = self.estimate_gas() + GAS_BUFFER
+            estimate_gas = self.estimate_gas(tx) + GAS_BUFFER
         except Exception:
             estimate_gas = 3000000
-        tx = self.w3._build_transaction(self.signer.address, kwargs)
         tx.update(
             {
                 "value": kwargs.get("value", 0),
                 "gas": kwargs.get("gas_limit", estimate_gas),
             }
         )
-        tx = self.signer.sign_transaction(self.build_transaction(tx)).raw_transaction
-        tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
+        raw_tx = self.signer.sign_transaction(tx).raw_transaction
+        tx_hash = self.w3.eth.send_raw_transaction(raw_tx).hex()
         func_name = (
             self.abi_element_identifier
             if isinstance(self.abi_element_identifier, str)
