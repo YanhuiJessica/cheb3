@@ -78,9 +78,6 @@ class Contract:
             access_list (List[Dict]): Specifies a list of addresses and storage
                 keys that the transaction plans to access (EIP-2930). It will only
                 be used in logic contract deployment if `proxy` is :const:`True`.
-            authorization_list (List[SignedSetCodeAuthorization]): Specifies a
-                list of signed authorizations (EIP-7702). It will only
-                be used in logic contract deployment if `proxy` is :const:`True`.
         """
         if not self.signer:
             raise AttributeError("The `signer` is missing.")
@@ -89,6 +86,9 @@ class Contract:
             logger.info(f"Contract {type(self).__name__} has already been deployed at {self.address}.")
             return
 
+        # EIP-7702 transaction cannot be used to create contract
+        if "authorization_list" in kwargs:
+            del kwargs["authorization_list"]
         tx = self.w3._build_transaction(self.signer.address, kwargs)
         tx.update(
             {

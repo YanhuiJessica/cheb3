@@ -47,6 +47,16 @@ def token_contract(setup, account1):
     return contract
 
 
+def test_set_code_deployment(setup, account1):
+    abi, bytecode = compile_file("tests/integration/contracts/MockWETH.sol", solc_version="0.8.20")["MockWETH"]
+    contract = setup.contract(account1, abi=abi, bytecode=bytecode)
+    contract_addr = calc_create_address(account1.address, setup.w3.eth.get_transaction_count(account1.address))
+    signed_auth = account1.sign_authorization(contract_addr)
+    contract.deploy(authorization_list=[signed_auth])
+    # authorization_list is removed
+    assert setup.get_code(account1.address).to_0x_hex() == f"0x"
+
+
 def test_self_set_code(setup, account1, account2, token_contract, delegate_contract):
     signed_auth = account1.sign_authorization(delegate_contract.address)
     token_contract.functions.deposit().send_transaction(value=10, authorization_list=[signed_auth])
