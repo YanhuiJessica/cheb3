@@ -121,7 +121,7 @@ pyunormalize==16.0.0
     # via web3
 regex==2024.9.11
     # via parsimonious
-requests==2.32.3
+requests==2.32.4
     # via
     #   py-solc-x
     #   sphinx
