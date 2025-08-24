@@ -90,16 +90,13 @@ class Contract:
         if "authorization_list" in kwargs:
             del kwargs["authorization_list"]
         tx = self.w3._build_transaction(self.signer.address, kwargs)
-        tx.update(
-            {
-                "gas": kwargs.get(
-                    "gas_limit",
-                    self.instance.constructor(*constructor_args).estimate_gas({"from": self.signer.address}),
-                ) + GAS_BUFFER,
-                "value": kwargs.get("value", 0),
-            }
-        )
+        tx["value"] = kwargs.get("value", 0)
         tx = self.instance.constructor(*constructor_args).build_transaction(tx)
+        try:
+            estimate_gas = self.w3.eth.estimate_gas(tx) + GAS_BUFFER
+        except Exception:
+            estimate_gas = 3000000
+        tx["gas"] = kwargs.get("gas_limit", estimate_gas)
         tx = self.signer.sign_transaction(tx).raw_transaction
         logger.debug(f"Deploying {type(self).__name__} ...")
         tx_hash = self.w3.eth.send_raw_transaction(tx).hex()
@@ -246,16 +243,12 @@ class ContractFunctionWrapper(ContractFunction):
 
         tx = self.w3._build_transaction(self.signer.address, kwargs)
         tx = self.build_transaction(tx)
+        tx["value"] = kwargs.get("value", 0)
         try:
             estimate_gas = self.estimate_gas(tx) + GAS_BUFFER
         except Exception:
             estimate_gas = 3000000
-        tx.update(
-            {
-                "value": kwargs.get("value", 0),
-                "gas": kwargs.get("gas_limit", estimate_gas),
-            }
-        )
+        tx["gas"] = kwargs.get("gas_limit", estimate_gas)
         raw_tx = self.signer.sign_transaction(tx).raw_transaction
         tx_hash = self.w3.eth.send_raw_transaction(raw_tx).hex()
         func_name = (
