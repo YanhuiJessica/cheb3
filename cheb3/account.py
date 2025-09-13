@@ -5,7 +5,7 @@ import string
 
 from web3 import Web3
 from web3._utils.datatypes import PropertyCheckingFactory
-from web3.types import TxReceipt
+from web3.types import TxReceipt, AccessList
 from eth_typing import HexStr
 import eth_account
 from eth_account.datastructures import SignedMessage, SignedSetCodeAuthorization
@@ -74,7 +74,7 @@ class Account:
         return eth_account.Account._sign_hash(message_hash, self.private_key)
 
     def sign_authorization(self, target: HexStr, is_sender: bool = True, **kwargs) -> SignedSetCodeAuthorization:
-        """Sign an authorization to be included in a EIP-7702 transaction.
+        """Signs an authorization to be included in a EIP-7702 transaction.
 
         :param target: The address of the smart contract code to be associated with the account.
         :type target: HexStr
@@ -100,9 +100,58 @@ class Account:
     def get_balance(self) -> int:
         """Returns the balance of the account instance."""
         return self.w3.eth.get_balance(self.eth_acct.address)
+    
+    def create_access_list(self, to: Union[HexStr, None], value: int = 0, data: HexStr = "0x", **kwargs) -> AccessList:
+        """Creates an EIP-2930 type access list based on
+        the given transaction data.
+
+        :param to: The address of the receiver.
+        :type to: Union[HexStr, None]
+        :param value: The amount to transfer, defaults to 0 (wei).
+        :type value: int
+        :param data: The transaction data, defaults to `0x`.
+        :type data: HexStr
+
+        Keyword Args:
+            block_identifier (str): A string representing a block number (hexadecimal)
+                or `latest` or `pending`, defaults is `latest`.
+            gas_price (int): Specifies the gas price for the **LEGACY** transaction.
+            max_priority_fee_per_gas (int): Specifies the fee that goes to the miner,
+                defaults to the value of :attr:`~web3.eth.Eth.max_priority_fee`.
+            max_fee_per_gas (int): Specifies the maximum amount you are willing to pay,
+                inclusive of `baseFeePerGas` and `maxPriorityFeePerGas`. Its default value
+                is the sum of `maxPriorityFeePerGas` and twice the `baseFeePerGas` of the latest block.
+            gas_limit (int): Specifies the maximum gas the transaction can use.
+            authorization_list (List[SignedSetCodeAuthorization]): Specifies a
+                list of signed authorizations (EIP-7702).
+        
+        :returns: An access list contains all storage slots and addresses read
+            and written by the transaction, except for the sender account and
+            the precompiles.
+        :rtype: AccessList
+        """
+        
+        if to:
+            to = Web3.to_checksum_address(to)
+
+        tx = self.w3._build_transaction(self.address, kwargs)
+        tx.update(
+            {
+                "to": to,
+                "value": value,
+                "data": data,
+            }
+        )
+        try:
+            estimate_gas = self.w3.eth.estimate_gas(tx) + GAS_BUFFER
+        except Exception:
+            estimate_gas = 3000000
+        tx["gas"] = kwargs.get("gas_limit", estimate_gas)
+        return self.w3.eth.create_access_list(tx, kwargs.get("block_identifier", "latest"))["accessList"]
+        
 
     def call(self, to: HexStr, data: HexStr = "0x", **kwargs) -> HexBytes:
-        """Interact with a smart contract without creating a new
+        """Interacts with a smart contract without creating a new
         transaction on the blockchain.
 
         :param to: The address of the contract.
@@ -132,7 +181,7 @@ class Account:
     def send_transaction(
         self, to: Union[HexStr, None], value: int = 0, data: HexStr = "0x", **kwargs
     ) -> Union[TxReceipt, HexStr]:
-        """Transfer ETH or interact with a smart contract.
+        """Transfers ETH or interacts with a smart contract.
 
         :param to: The address of the receiver.
         :type to: Union[HexStr, None]

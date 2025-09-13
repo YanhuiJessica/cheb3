@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - dev
   pull_request:
 
 jobs:
@@ -21,10 +22,15 @@ jobs:
         run: |
           python3 -m pip install -U pip
           pip install pytest web3[tester]
-          pip install git+https://github.com/YanhuiJessica/cheb3.git#egg=cheb3
+          pip install -e .
+      - name: Install foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
       - name: Python ${{ matrix.python-version }} test utils
         run: |
           python3 -m pytest tests/utils
       - name: Python ${{ matrix.python-version }} test integration
         run: |
+          anvil -m "test test test test test test test test test test test junk" -q &
           python3 -m pytest tests/integration

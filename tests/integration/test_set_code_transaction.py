@@ -3,7 +3,7 @@ from web3 import EthereumTesterProvider
 
 from cheb3 import Connection
 from cheb3.helper import Web3Helper
-from cheb3.utils import compile_file, encode_with_signature
+from cheb3.utils import compile_file, encode_with_signature, calc_create_address
 
 # For testing purposes
 class ConnectionMock(Connection):

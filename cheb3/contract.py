@@ -18,7 +18,7 @@ from web3._utils.abi import (
     receive_func_abi_exists,
 )
 from web3._utils.abi_element_identifiers import FallbackFn, ReceiveFn
-from web3.types import TxReceipt
+from web3.types import TxReceipt, AccessList
 from eth_utils import abi_to_signature
 from eth_typing import ABI, ABIFunction, ChecksumAddress
 import eth_account
@@ -263,3 +263,17 @@ class ContractFunctionWrapper(ContractFunction):
         if not receipt.status:
             raise Exception(f"Transact to ({self.address}).{func_name} errored.")
         return receipt
+
+    def create_access_list(self, **kwargs) -> AccessList:
+        if not self.signer:
+            raise AttributeError("The `signer` is missing.")
+
+        tx = self.w3._build_transaction(self.signer.address, kwargs)
+        tx = self.build_transaction(tx)
+        tx["value"] = kwargs.get("value", 0)
+        try:
+            estimate_gas = self.estimate_gas(tx) + GAS_BUFFER
+        except Exception:
+            estimate_gas = 3000000
+        tx["gas"] = kwargs.get("gas_limit", estimate_gas)
+        return self.w3.eth.create_access_list(tx, kwargs.get("block_identifier", "latest"))["accessList"]
