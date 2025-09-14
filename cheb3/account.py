@@ -19,6 +19,12 @@ from loguru import logger
 class Account:
     """Please use :func:`cheb3.Connection.account` interface to
     create an account instance associated with the connection.
+
+    To create an account instance with the given private key:
+
+       >>> account = conn.account("0xpr1vateK3y")
+    
+    If no private key is provided, a randomly generated private key will be used to create an account instance.
     """
 
     w3: Web3Helper = None
@@ -76,6 +82,13 @@ class Account:
     def sign_authorization(self, target: HexStr, is_sender: bool = True, **kwargs) -> SignedSetCodeAuthorization:
         """Signs an authorization to be included in a EIP-7702 transaction.
 
+        Examples:
+
+            >>> # If this account is to sign the EIP-7702 transaction next
+            >>> account.sign_authorization(delegate_contract.address)
+            >>> # If the EIP-7702 transaction is sent by another account
+            >>> account.sign_authorization(delegate_contract.address, is_sender=False)
+
         :param target: The address of the smart contract code to be associated with the account.
         :type target: HexStr
         :param is_sender: If the account is also the sender of the EIP-7702 transaction.
@@ -100,7 +113,7 @@ class Account:
     def get_balance(self) -> int:
         """Returns the balance of the account instance."""
         return self.w3.eth.get_balance(self.eth_acct.address)
-    
+
     def create_access_list(self, to: Union[HexStr, None], value: int = 0, data: HexStr = "0x", **kwargs) -> AccessList:
         """Creates an EIP-2930 type access list based on
         the given transaction data.
@@ -124,13 +137,13 @@ class Account:
             gas_limit (int): Specifies the maximum gas the transaction can use.
             authorization_list (List[SignedSetCodeAuthorization]): Specifies a
                 list of signed authorizations (EIP-7702).
-        
+
         :returns: An access list contains all storage slots and addresses read
             and written by the transaction, except for the sender account and
             the precompiles.
         :rtype: AccessList
         """
-        
+
         if to:
             to = Web3.to_checksum_address(to)
 
@@ -148,10 +161,10 @@ class Account:
             estimate_gas = 3000000
         tx["gas"] = kwargs.get("gas_limit", estimate_gas)
         return self.w3.eth.create_access_list(tx, kwargs.get("block_identifier", "latest"))["accessList"]
-        
 
     def call(self, to: HexStr, data: HexStr = "0x", **kwargs) -> HexBytes:
-        """Interacts with a smart contract without creating a new
+        """Without a :class:`Contract <cheb3.contract.Contract>` instance,
+        interacts with a smart contract without creating a new
         transaction on the blockchain.
 
         :param to: The address of the contract.
@@ -181,7 +194,7 @@ class Account:
     def send_transaction(
         self, to: Union[HexStr, None], value: int = 0, data: HexStr = "0x", **kwargs
     ) -> Union[TxReceipt, HexStr]:
-        """Transfers ETH or interacts with a smart contract.
+        """Transfers ETH or interacts with a smart contract without a :class:`Contract <cheb3.contract.Contract>` instance.
 
         :param to: The address of the receiver.
         :type to: Union[HexStr, None]

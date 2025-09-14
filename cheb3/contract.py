@@ -20,7 +20,7 @@ from web3._utils.abi import (
 from web3._utils.abi_element_identifiers import FallbackFn, ReceiveFn
 from web3.types import TxReceipt, AccessList
 from eth_utils import abi_to_signature
-from eth_typing import ABI, ABIFunction, ChecksumAddress
+from eth_typing import ABI, ABIFunction, ChecksumAddress, HexStr
 import eth_account
 
 from cheb3.account import Account
@@ -41,6 +41,11 @@ class Contract:
     def __init__(self, signer: Account = None, address: str = None, **kwargs) -> None:
         """
         You can read states from the blockchain even if `signer` is not given.
+
+        The keyword arguments follow `web3.py <https://web3py.readthedocs.io/en/stable/web3.contract.html#contract-factories>`_. If the contract address and ABI are
+        provided, you can read the contract states; if a signer, contract address, and
+        ABI are provided, you can interact with the contract; if a signer, ABI, and
+        bytecode are provided, you can deploy the contract and interact with it.
         """
 
         if self.w3 is None:
@@ -237,7 +242,32 @@ class ContractFunctionsWrapper(ContractFunctions):
 class ContractFunctionWrapper(ContractFunction):
     signer: eth_account.Account = None
 
-    def send_transaction(self, **kwargs) -> TxReceipt:
+    def send_transaction(self, **kwargs) -> Union[TxReceipt, HexStr]:
+        """Signs and sends the transaction.
+
+        Keyword Args:
+            value (int): The amount to transfer, defaults to 0 (wei).
+            gas_price (int): Specifies the gas price for the **LEGACY** transaction.
+            max_priority_fee_per_gas (int): Specifies the fee that goes to the miner,
+                defaults to the value of :attr:`~web3.eth.Eth.max_priority_fee`.
+            max_fee_per_gas (int): Specifies the maximum amount you are willing to pay,
+                inclusive of `baseFeePerGas` and `maxPriorityFeePerGas`. Its default value
+                is the sum of `maxPriorityFeePerGas` and twice the `baseFeePerGas` of the latest block.
+            gas_limit (int): Specifies the maximum gas the transaction can use.
+            nonce (int): Allows to overwrite pending transactions that use
+                the same nonce.
+            access_list (List[Dict]): Specifies a list of addresses and storage
+                keys that the transaction plans to access (EIP-2930).
+            authorization_list (List[SignedSetCodeAuthorization]): Specifies a
+                list of signed authorizations (EIP-7702).
+            wait_for_receipt (bool): Waits for the transaction receipt,
+                defaults to :const:`True`.
+
+        :returns: The transaction receipt or the transaction hash if
+            `wait_for_receipt` is :const:`False`.
+        :rtype: Union[TxReceipt, HexStr]
+        """
+
         if not self.signer:
             raise AttributeError("The `signer` is missing.")
 
@@ -265,6 +295,29 @@ class ContractFunctionWrapper(ContractFunction):
         return receipt
 
     def create_access_list(self, **kwargs) -> AccessList:
+        """Creates an EIP-2930 type access list based on
+        the function call data.
+        
+        Keyword Args:
+            block_identifier (str): A string representing a block number (hexadecimal)
+                or `latest` or `pending`, defaults is `latest`.
+            value (int): The amount to transfer, defaults to 0 (wei).
+            gas_price (int): Specifies the gas price for the **LEGACY** transaction.
+            max_priority_fee_per_gas (int): Specifies the fee that goes to the miner,
+                defaults to the value of :attr:`~web3.eth.Eth.max_priority_fee`.
+            max_fee_per_gas (int): Specifies the maximum amount you are willing to pay,
+                inclusive of `baseFeePerGas` and `maxPriorityFeePerGas`. Its default value
+                is the sum of `maxPriorityFeePerGas` and twice the `baseFeePerGas` of the latest block.
+            gas_limit (int): Specifies the maximum gas the transaction can use.
+            authorization_list (List[SignedSetCodeAuthorization]): Specifies a
+                list of signed authorizations (EIP-7702).
+
+        :returns: An access list contains all storage slots and addresses read
+            and written by the transaction, except for the sender account and
+            the precompiles.
+        :rtype: AccessList
+        """
+
         if not self.signer:
             raise AttributeError("The `signer` is missing.")
 
