@@ -42,10 +42,10 @@ class Contract:
         """
         You can read states from the blockchain even if `signer` is not given.
 
-        The keyword arguments follow `web3.py <https://web3py.readthedocs.io/en/stable/web3.contract.html#contract-factories>`_. If the contract address and ABI are
-        provided, you can read the contract states; if a signer, contract address, and
-        ABI are provided, you can interact with the contract; if a signer, ABI, and
-        bytecode are provided, you can deploy the contract and interact with it.
+        The keyword arguments follow `web3.py <https://web3py.readthedocs.io/en/stable/web3.contract.html#contract-factories>`_.
+        If the contract address and ABI are provided, you can read the contract states;
+        if a signer, contract address, and ABI are provided, you can interact with the contract;
+        if a signer, ABI, and bytecode are provided, you can deploy the contract and interact with it.
         """
 
         if self.w3 is None:
@@ -297,7 +297,7 @@ class ContractFunctionWrapper(ContractFunction):
     def create_access_list(self, **kwargs) -> AccessList:
         """Creates an EIP-2930 type access list based on
         the function call data.
-        
+
         Keyword Args:
             block_identifier (str): A string representing a block number (hexadecimal)
                 or `latest` or `pending`, defaults is `latest`.

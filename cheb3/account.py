@@ -23,7 +23,7 @@ class Account:
     To create an account instance with the given private key:
 
        >>> account = conn.account("0xpr1vateK3y")
-    
+
     If no private key is provided, a randomly generated private key will be used to create an account instance.
     """
 
