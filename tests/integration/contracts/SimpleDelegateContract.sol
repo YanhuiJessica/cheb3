@@ -1,5 +1,5 @@
 pragma solidity ^0.8.17;
- 
+
 // https://getfoundry.sh/reference/cheatcodes/sign-delegation/
 contract SimpleDelegateContract {
     event Executed(address indexed to, uint256 value, bytes data);

@@ -10,11 +10,12 @@ class Web3Helper(Web3):
             "nonce": kwargs.get("nonce", self.eth.get_transaction_count(signer)),
             "gasPrice": kwargs.get("gas_price", self.eth.gas_price),
         }
+        latest_base_fee_per_gas = self.eth.get_block("latest")["baseFeePerGas"]
         if kwargs.get("max_fee_per_gas") or kwargs.get("max_priority_fee_per_gas"):
             del tx["gasPrice"]
             tx["maxPriorityFeePerGas"] = kwargs.get("max_priority_fee_per_gas", self.eth.max_priority_fee)
             tx["maxFeePerGas"] = kwargs.get(
-                "max_fee_per_gas", tx["maxPriorityFeePerGas"] + self.eth.get_block("latest")["baseFeePerGas"] * 2
+                "max_fee_per_gas", tx["maxPriorityFeePerGas"] + latest_base_fee_per_gas * 2
             )
         if kwargs.get("access_list"):
             tx["accessList"] = kwargs["access_list"]
@@ -24,5 +25,5 @@ class Web3Helper(Web3):
             if "gasPrice" in tx:
                 del tx["gasPrice"]
                 tx["maxPriorityFeePerGas"] = self.eth.max_priority_fee
-                tx["maxFeePerGas"] = tx["maxPriorityFeePerGas"] + self.eth.get_block("latest")["baseFeePerGas"] * 2
+                tx["maxFeePerGas"] = tx["maxPriorityFeePerGas"] + latest_base_fee_per_gas * 2
         return tx

@@ -54,7 +54,7 @@ def test_set_code_deployment(setup, account1):
     signed_auth = account1.sign_authorization(contract_addr)
     contract.deploy(authorization_list=[signed_auth])
     # authorization_list is removed
-    assert setup.get_code(account1.address).to_0x_hex() == f"0x"
+    assert setup.get_code(account1.address).to_0x_hex() == "0x"
 
 
 def test_self_set_code(setup, account1, account2, token_contract, delegate_contract):
@@ -86,7 +86,7 @@ def test_self_set_code(setup, account1, account2, token_contract, delegate_contr
     reset_auth = account1.sign_authorization(f"0x{'00' * 20}")
     token_contract.functions.deposit().send_transaction(value=10, authorization_list=[reset_auth])
 
-    assert setup.get_code(account1.address).hex() == f""
+    assert setup.get_code(account1.address).hex() == ""
 
 
 def test_other_set_code(setup, account1, account2, token_contract, delegate_contract):
