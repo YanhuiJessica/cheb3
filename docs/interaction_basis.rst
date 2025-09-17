@@ -8,7 +8,7 @@ To get an account instance, you can either use the existing private key or creat
 .. code-block:: python
 
     >>> new_account = conn.account()
-    >>> existing_account = conn.account("<private-key>")
+    >>> existing_account = conn.account("0xpr1vateK3y")
 
 Working with Contracts
 ----------------------
@@ -37,13 +37,13 @@ To get the ABI and bytecode of a contract, you can use :meth:`~cheb3.utils.compi
     base_path="node_modules/" # to include source code from other directories
     )["Cheb3Token"] # choose the expected contract
 
-If you are working on a Hardhat/Foundry project, you can use :meth:`~cheb3.utils.load_compiled` to reuse the project compilation results.
+If you are working on a Hardhat/Foundry project, you can put the python script in the :code:`script/` directory, and use :meth:`~cheb3.utils.load_compiled` to reuse the project compilation results.
 
 .. code-block:: python
 
     >>> from cheb3.utils import load_compiled
     >>> abi, bytecode = load_compiled(
-        "Token.sol",    # the contract file
+        "Token.sol",    # the contract file name
         "Cheb3Token"    # the contract name, default to the filename without suffix
     )
 
@@ -65,7 +65,7 @@ If you have the contract's ABI, you can create a contract instance:
         abi=abi
     )
 
-After that, the interaction with the contract is similar to that in `web3.py <https://web3py.readthedocs.io/en/stable/examples.html#interacting-with-existing-contracts>`_. Since the contract instance is associated with an account, cheb3 simplifies the process of signing and sending transactions. Take the previously compiled Cheb3Token for example:
+After that, the interaction with the contract is similar to that in `web3.py <https://web3py.readthedocs.io/en/stable/web3.contract.html#interacting-with-deployed-contracts>`_. But cheb3 simplifies the process of signing and sending transactions, since the contract instance is associated with an account in cheb3. Take the previously compiled Cheb3Token for example:
 
 .. code-block:: python
 

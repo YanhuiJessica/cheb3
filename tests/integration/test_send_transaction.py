@@ -1,7 +1,8 @@
 import pytest
-from web3 import Web3, EthereumTesterProvider
+from web3 import EthereumTesterProvider
 
 from cheb3 import Connection
+from cheb3.helper import Web3Helper
 from cheb3.utils import compile_file, encode_with_signature
 
 # set up the keyfile account with a known address
@@ -11,7 +12,7 @@ KEYFILE_ACCOUNT_ADDRESS = "0xdC544d1AA88Ff8bbd2F2AeC754B1F1e99e1812fd"
 # For testing purposes
 class ConnectionMock(Connection):
     def __init__(self) -> None:
-        self.w3 = Web3(EthereumTesterProvider())
+        self.w3 = Web3Helper(EthereumTesterProvider())
 
 
 @pytest.fixture(scope="module")
@@ -47,11 +48,41 @@ def token_contract(setup, account):
     return contract
 
 
+def test_proxy_contract_deploy(setup, account):
+    abi, bytecode = compile_file("tests/integration/contracts/MockWETH.sol", solc_version="0.8.20")["MockWETH"]
+    contract = setup.contract(account, abi=abi, bytecode=bytecode)
+    contract.deploy(proxy=True)
+    code = setup.get_code(contract.address).to_0x_hex()[2:]
+    assert code[:18] == "363d3d373d3d3d363d"
+    assert code[-30:] == "5af43d82803e903d91602b57fd5bf3"
+
+
 def test_contract_send_transaction(token_contract, account):
     balance_before = token_contract.caller.balanceOf(account.address)
     token_contract.functions.deposit().send_transaction(value=10)
     balance_after = token_contract.caller.balanceOf(account.address)
     assert balance_after == balance_before + 10
+
+
+def test_contract_fallback(token_contract, account):
+    balance_before = token_contract.caller.balanceOf(account.address)
+    token_contract.fallback.send_transaction(value=10)
+    balance_after = token_contract.caller.balanceOf(account.address)
+    assert balance_after == balance_before + 10
+
+
+def test_contract_receive(token_contract, account):
+    balance_before = token_contract.caller.balanceOf(account.address)
+    token_contract.receive.send_transaction(value=10)
+    balance_after = token_contract.caller.balanceOf(account.address)
+    assert balance_after == balance_before + 10
+
+
+def test_account_fallback_with_data(account, token_contract):
+    balance_before = token_contract.caller.balanceOf(account.address)
+    account.send_transaction(token_contract.address, 10, b"\xde\xad\xbe\xef")
+    balance_after = token_contract.caller.balanceOf(account.address)
+    assert balance_after == balance_before + 10 + 0xDEADBEEF
 
 
 def test_account_send_transaction(account, token_contract):
