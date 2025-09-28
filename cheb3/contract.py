@@ -96,6 +96,11 @@ class Contract:
             del kwargs["authorization_list"]
         tx = self.w3._build_transaction(self.signer.address, kwargs)
         tx["value"] = kwargs.get("value", 0)
+
+        # to prevent the build_transaction from simulating the transaction
+        # and reverting during gas estimation.
+        tx["gas"] = 3000000
+
         tx = self.instance.constructor(*constructor_args).build_transaction(tx)
         try:
             estimate_gas = self.w3.eth.estimate_gas(tx) + GAS_BUFFER
@@ -272,6 +277,11 @@ class ContractFunctionWrapper(ContractFunction):
             raise AttributeError("The `signer` is missing.")
 
         tx = self.w3._build_transaction(self.signer.address, kwargs)
+
+        # to prevent the build_transaction from simulating the transaction
+        # and reverting during gas estimation.
+        tx["gas"] = 3000000
+
         tx = self.build_transaction(tx)
         tx["value"] = kwargs.get("value", 0)
         try:
