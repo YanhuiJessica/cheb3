@@ -41,28 +41,3 @@ jobs:
           path: dist/
       - name: Publish
         uses: pypa/gh-action-pypi-publish@release/v1
-  update-docs-requirements:
-    name: Update docs requirements
-    if: startsWith(github.ref, 'refs/tags')
-    needs:
-      - publish-to-pypi
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: main
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-      - name: Install pip-tools
-        run: python3 -m pip install pip-tools
-      - name: Update requirements.txt
-        run: cd docs/ && pip-compile requirements.in > requirements.txt
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: Docs requirements automatic updates
-          branch: main
-          file_pattern: '*.txt'
-          skip_dirty_check: false
